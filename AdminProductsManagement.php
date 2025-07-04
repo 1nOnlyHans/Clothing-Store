@@ -36,71 +36,93 @@ include "./includes/AddProductModal.php";
 ?>
 <script>
     $(document).ready(function() {
-        let productsTable = $("#product-tbl").DataTable({
-            ajax: "./controllers/GetAllProducts.php",
-            columns: [{
-                    data: "name",
-                    class: "text-center"
+        fetchProducts();
+
+        function fetchProducts() {
+            $.ajax({
+                method: "GET",
+                url: "./controllers/GetAllProducts.php",
+                dataType: "json",
+                success: function(response) {
+                    $("#product-tbl").DataTable({
+                        data: response,
+                        columns: [{
+                                data: "name",
+                                class: "text-center"
+                            },
+                            {
+                                data: null,
+                                class: "text-center",
+                                render: function(data, type, row) {
+                                    return `<img src="./public/uploads/product_images/${data.image}" alt="Product Image" style="width: 150px; height: 150px; object-fit: cover;">`;
+                                }
+                            },
+                            {
+                                data: "category_name",
+                                class: "text-center"
+                            },
+                            {
+                                data: "price",
+                                class: "text-center"
+                            },
+                            {
+                                data: "discount",
+                                class: "text-center"
+                            },
+                            {
+                                data: null,
+                                render: function(data, type, row) {
+                                    return `
+                                        <div class="d-flex justify-content-center align-content-center gap-3">
+                                            <a href="AdminProductDetails.php?productID=${data.id}" class="btn btn-outline-primary">
+                                                view
+                                            </a>
+                                            <button type="button" class="btn btn-outline-danger">Delete</button>
+                                        </div>`;
+                                },
+                            },
+                        ],
+                        destroy: true,
+                        responsive: true,
+                        lengthMenu: [
+                            [5, 10, 25, 50, -1],
+                            [5, 10, 25, 50, "All"]
+                        ],
+                        pageLength: 5,
+                        paging: true,
+                        dom: "Blfrtip", // ✅ makes sure length, filter, info, pagination show
+                        buttons: [{
+                                extend: "print",
+                                text: "🖨️ Print",
+                                className: "btn btn-warning me-3 mb-3",
+                                exportOptions: {
+                                    columns: [0, 2, 3, 4]
+                                }
+                            },
+                            {
+                                extend: "csv",
+                                text: "📄 CSV",
+                                className: "btn btn-success me-3 mb-3",
+                                exportOptions: {
+                                    columns: [0, 2, 3, 4]
+                                }
+                            },
+                            {
+                                extend: "pdf",
+                                text: "📑 PDF",
+                                className: "btn btn-danger me-3 mb-3",
+                                exportOptions: {
+                                    columns: [0, 2, 3, 4]
+                                }
+                            }
+                        ]
+                    });
                 },
-                {
-                    data: null,
-                    class: "text-center",
-                    render: function(data, type, row) {
-                        return `<img src="./public/uploads/product_images/${data.image}" alt="Product Image" width="150" height="auto">`;
-                    }
-                },
-                {
-                    data: "category_name",
-                    class: "text-center"
-                },
-                {
-                    data: "price",
-                    class: "text-center"
-                },
-                {
-                    data: "discount",
-                    class: "text-center"
-                },
-                {
-                    data: null,
-                    render: function(data, type, row) {
-                        return `
-          <div class="d-flex justify-content-center align-content-center gap-3">
-            <button class="btn btn-outline-primary view-btn" data-id=${data.name}>View</button>
-            <button class="btn btn-outline-info">Edit</button>
-            <button class="btn btn-outline-danger">Delete</button>
-          </div>`;
-                    },
-                },
-            ],
-            responsive: true,
-            dom: "Bfrtip",
-            buttons: [{
-                    extend: "print",
-                    text: "🖨️ Print",
-                    className: "btn btn-warning me-3 mb-3",
-                    exportOptions: {
-                        columns: [0, 2, 3, 4]
-                    }
-                },
-                {
-                    extend: "csv",
-                    text: "📄 CSV",
-                    className: "btn btn-success me-3 mb-3",
-                    exportOptions: {
-                        columns: [0, 2, 3, 4]
-                    }
-                },
-                {
-                    extend: "pdf",
-                    text: "📑 PDF",
-                    className: "btn btn-danger me-3 mb-3",
-                    exportOptions: {
-                        columns: [0, 2, 3, 4]
-                    }
+                error: function(xhr) {
+                    console.log(xhr.responseText);
                 }
-            ]
-        });
+            })
+        }
 
         $('#add-product-form').on('submit', function(event) {
             event.preventDefault();
@@ -113,9 +135,11 @@ include "./includes/AddProductModal.php";
                 contentType: false,
                 processData: false,
                 success: function(response) {
-                    console.log(response);
                     if (response.status === "success") {
-                        productsTable.ajax.reload();
+                        $('#add-product-form')[0].reset();
+                        fetchProducts();
+                        let Modal = bootstrap.Modal.getInstance(document.getElementById('AddProductModal'));
+                        Modal.hide();
                         Swal.fire({
                             icon: "success",
                             title: response.message
@@ -127,8 +151,8 @@ include "./includes/AddProductModal.php";
                         });
                     }
                 },
-                error: function(error) {
-                    console.log(error);
+                error: function(xhr) {
+                    console.log(xhr.responseText);
                 }
             });
         });

@@ -1,5 +1,4 @@
-    <link rel="stylesheet" href="./assets/css/plugins.min.css" />
-    <link rel="stylesheet" href="./assets/css/kaiadmin.min.css" />
+
     <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.css">
     <link rel="stylesheet" href="./node_modules/sweetalert2/dist/sweetalert2.min.css">
     <script src="./node_modules/jquery/dist/jquery.min.js"></script>
@@ -20,3 +19,13 @@
     <script src="./node_modules/datatables.net-buttons-bs5/js/buttons.bootstrap5.min.js"></script>
     <script src="./node_modules/datatables.net-buttons/js/buttons.html5.min.js"></script>
     <script src="./node_modules/datatables.net-buttons/js/buttons.print.min.js"></script>
+
+    <link rel="stylesheet" href="./assets/css/plugins.min.css" />
+    <link rel="stylesheet" href="./assets/css/kaiadmin.min.css" />
+    
+
+    
+
+
+
+

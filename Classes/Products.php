@@ -6,7 +6,7 @@ class Products
 {
     protected $db;
     private $table = "products";
-    private $imageUpload;
+    protected $imageUpload;
 
     public function __construct($db)
     {
@@ -14,7 +14,7 @@ class Products
         $this->imageUpload = new Image($db);
     }
 
-    public function addProduct($name, $description, $price, $category,$image)
+    public function addProduct($name, $description, $price, $category, $image)
     {
         $name = htmlspecialchars(trim($name));
         $description = htmlspecialchars(trim($description));
@@ -35,10 +35,10 @@ class Products
             ];
         }
 
-        if(isset($image) && !empty($image)){
+        if (isset($image) && !empty($image)) {
             $imageDatabaseName = time() . '_' . basename($image["name"]);
-            $imageUpload = $this -> imageUpload -> UploadImage($image,$imageDatabaseName,"../public/uploads/product_images/");
-            if($imageUpload["status"] === "error"){
+            $imageUpload = $this->imageUpload->UploadImage($image, $imageDatabaseName, "../public/uploads/product_images/");
+            if ($imageUpload["status"] === "error") {
                 return $imageUpload;
             }
         }
@@ -53,8 +53,8 @@ class Products
             $query->bindParam(":name", $name);
             $query->bindParam(":description", $description);
             $query->bindParam(":base_price", $price);
-            $query->bindParam(":image",$imageDatabaseName);
-            
+            $query->bindParam(":image", $imageDatabaseName);
+
             if ($query->execute()) {
                 return [
                     "status" => "success",
@@ -74,7 +74,7 @@ class Products
         }
     }
 
-    public function updateProduct($id, $name, $description, $price, $category)
+    public function updateProduct($id, $name, $description, $price, $category, $image)
     {
         $id = (int) $id;
         $name = htmlspecialchars(trim($name));
@@ -96,16 +96,36 @@ class Products
             ];
         }
 
+        $imageDatabaseName = null;
+
+        if (isset($image) && !empty($image["tmp_name"])) {
+            $imageDatabaseName = time() . '_' . basename($image["name"]);
+            $fetchPreviousImage = $this->GetOneProduct($id);
+            foreach ($fetchPreviousImage as $data) {
+                $PreviousImage = $data["image"];
+            }
+            $UpdateImage = $this->imageUpload->UpdateImage($PreviousImage, $image, $imageDatabaseName, "../public/uploads/product_images/");
+            if ($UpdateImage["status"] === "error") {
+                return $UpdateImage;
+            }
+        } else {
+            $fetchPreviousImage = $this->GetOneProduct($id);
+            foreach ($fetchPreviousImage as $data) {
+                $imageDatabaseName = $data["image"];
+            }
+        }
+
         try {
             if (count($verifyProduct = $this->GetOneProduct($id)) > 0) {
                 $updateQuery = $this->db->prepare(
                     "UPDATE " . $this->table . "
-                     SET category_id = :category_id, name = :name, description = :description, base_price = :base_price WHERE id = :id"
+                 SET category_id = :category_id, name = :name, description = :description, base_price = :base_price,image = :image WHERE id = :id"
                 );
                 $updateQuery->bindParam(":category_id", $category);
                 $updateQuery->bindParam(":name", $name);
                 $updateQuery->bindParam(":description", $description);
                 $updateQuery->bindParam(":base_price", $price);
+                $updateQuery->bindParam(":image", $imageDatabaseName);
                 $updateQuery->bindParam(":id", $id);
                 $updateQuery->execute();
 
@@ -211,6 +231,8 @@ class Products
                     "name" => $row->name,
                     "description" => $row->description,
                     "price" => $row->base_price,
+                    "discount" => $row->discount,
+                    "image" => $row->image,
                     "category" => $row->category_id,
                     "category_name" => $row->category_name
                 ];
