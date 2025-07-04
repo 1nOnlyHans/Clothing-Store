@@ -17,19 +17,13 @@ require "./Classes/Admin.php";
                         <input type="text" name="name" id="name" class="form-control" required>
                     </div>
                     <div class="mb-3">
-                        <label for="name" class="form-label">
+                        <label for="description" class="form-label">
                             Description
                         </label>
                         <textarea name="description" id="description" class="form-control" required></textarea>
                     </div>
                     <div class="mb-3">
-                        <label for="name" class="form-label">
-                            Base Price
-                        </label>
-                        <input type="number" name="base_price" id="base_price" class="form-control" required></input>
-                    </div>
-                    <div class="mb-3">
-                        <label for="name" class="form-label">
+                        <label for="category" class="form-label">
                             Category
                         </label>
                         <select name="category" id="category" class="form-select">

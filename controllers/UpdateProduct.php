@@ -6,9 +6,8 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
     $category = $_POST["category"] ?? "";
     $name = $_POST["name"] ?? "";
     $description = $_POST["description"] ?? "";
-    $base_price = $_POST["base_price"] ?? 0;
     $image = $_FILES["image"] ?? "";
     $action = new Admin();
 
-    echo json_encode($action -> updateProduct($id,$name,$description,$base_price,$category,$image));
+    echo json_encode($action -> updateProduct($id,$name,$description,$category,$image));
 }

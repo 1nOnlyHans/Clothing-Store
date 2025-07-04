@@ -17,8 +17,8 @@ include "./includes/admin_sidebar.php";
                                 <th class="text-center">Product Name</th>
                                 <th class="text-center">Image</th>
                                 <th class="text-center">Category</th>
-                                <th class="text-center">Base Price</th>
-                                <th class="text-center">Discount</th>
+                                <th class="text-center">Total Variants</th>
+                                <th class="text-center">Total Stocks</th>
                                 <th class="text-center">Actions</th>
                             </tr>
                         </thead>
@@ -44,6 +44,7 @@ include "./includes/AddProductModal.php";
                 url: "./controllers/GetAllProducts.php",
                 dataType: "json",
                 success: function(response) {
+                    console.log(response);
                     $("#product-tbl").DataTable({
                         data: response,
                         columns: [{
@@ -62,12 +63,15 @@ include "./includes/AddProductModal.php";
                                 class: "text-center"
                             },
                             {
-                                data: "price",
+                                data: "total_variants",
                                 class: "text-center"
                             },
                             {
-                                data: "discount",
-                                class: "text-center"
+                                data: null,
+                                class: "text-center",
+                                render: function(data, type, row) {
+                                    return `${data.total_stock === null ? "0" : data.total_stock}`;
+                                }
                             },
                             {
                                 data: null,
@@ -77,7 +81,7 @@ include "./includes/AddProductModal.php";
                                             <a href="AdminProductDetails.php?productID=${data.id}" class="btn btn-outline-primary">
                                                 view
                                             </a>
-                                            <button type="button" class="btn btn-outline-danger">Delete</button>
+                                            <button type="button" class="btn btn-outline-danger delete" data-id="${data.id}">Delete</button>
                                         </div>`;
                                 },
                             },
@@ -135,6 +139,7 @@ include "./includes/AddProductModal.php";
                 contentType: false,
                 processData: false,
                 success: function(response) {
+                    console.log(response);
                     if (response.status === "success") {
                         $('#add-product-form')[0].reset();
                         fetchProducts();
@@ -153,6 +158,47 @@ include "./includes/AddProductModal.php";
                 },
                 error: function(xhr) {
                     console.log(xhr.responseText);
+                }
+            });
+        });
+
+        $(document).on('click', '.delete', function() {
+            const id = $(this).attr('data-id');
+            Swal.fire({
+                title: "Are you sure?",
+                text: "All the item variants will also be removed!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        method: "POST",
+                        url: "./controllers/DeleteProduct.php",
+                        data: {
+                            productID: id
+                        },
+                        dataType: "json",
+                        success: function(response) {
+                            if (response.status === "success") {
+                                fetchProducts();
+                                Swal.fire({
+                                    icon: "success",
+                                    title: response.message
+                                });
+                            } else {
+                                Swal.fire({
+                                    icon: "error",
+                                    title: response.message
+                                });
+                            }
+                        },
+                        error: function(xhr) {
+                            console.log(xhr.responseText);
+                        }
+                    });
                 }
             });
         });

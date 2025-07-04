@@ -1,5 +1,4 @@
 <?php
-
 class ProductVariant extends Products
 {
     private $table = "product_variants";
@@ -9,7 +8,7 @@ class ProductVariant extends Products
         parent::__construct($db);
     }
 
-    public function addVariant($productID, $size, $color, $price, $stock)
+    public function addVariant($productID, $size, $color, $price, $stock, $image)
     {
         $productID = (int) $productID;
         $price = floatval($price);
@@ -40,17 +39,36 @@ class ProductVariant extends Products
             ];
         }
 
+        if (isset($image) && !empty($image["tmp_name"])) {
+            $imageDatabaseName = time() . '_' . basename($image["name"]);
+            $imageUpload = $this->imageUpload->UploadImage(
+                $image,
+                $imageDatabaseName,
+                "../public/uploads/variant_images/"
+            );
+            if ($imageUpload["status"] === "error") {
+                return $imageUpload;
+            }
+        } else {
+            return [
+                "status" => "error",
+                "message" => "Provide an image"
+            ];
+            $imageDatabaseName = null;
+        }
+
         try {
             $query = $this->db->prepare(
                 "INSERT INTO " . $this->table . " 
-             (product_id, size, color, price, stock) 
-             VALUES (:product_id, :size, :color, :price, :stock)"
+             (product_id, size, color, price, stock,image) 
+             VALUES (:product_id, :size, :color, :price, :stock,:image)"
             );
             $query->bindParam(":product_id", $productID);
             $query->bindParam(":size", $size);
             $query->bindParam(":color", $color);
             $query->bindParam(":price", $price);
             $query->bindParam(":stock", $stock);
+            $query->bindParam(":image", $imageDatabaseName);
 
             if ($query->execute()) {
                 return [
@@ -71,11 +89,22 @@ class ProductVariant extends Products
         }
     }
 
-    public function updateVariant($variantID, $price, $stock)
+    public function updateVariant($variantID, $size, $color, $price, $stock, $image)
     {
         $variantID = (int) $variantID;
+        $price = floatval($price);
+        $size = htmlspecialchars(trim($size));
+        $color = htmlspecialchars(trim($color));
+        $stock = (int) $stock;
 
-        $findVariant = $this->GetOneVariant($variantID);
+        if (empty($price) || empty($size) || empty($color) || empty($stock)) {
+            return [
+                "status" => "error",
+                "message" => "Fill all the required fields"
+            ];
+        }
+
+        $findVariant = $this->getOneVariant($variantID);
         if (count($findVariant) === 0) {
             return [
                 "status" => "error",
@@ -83,11 +112,49 @@ class ProductVariant extends Products
             ];
         }
 
+        // ✅ SAME image update logic
+        $imageDatabaseName = null;
+
+        if (isset($image) && !empty($image["tmp_name"])) {
+            $imageDatabaseName = time() . '_' . basename($image["name"]);
+
+            foreach ($findVariant as $data) {
+                $PreviousImage = $data["image"];
+            }
+
+            $updateImage = $this->imageUpload->UpdateImage(
+                $PreviousImage,
+                $image,
+                $imageDatabaseName,
+                "../public/uploads/variant_images/"
+            );
+            if ($updateImage["status"] === "error") {
+                return $updateImage;
+            }
+        } else {
+            foreach ($findVariant as $data) {
+                $imageDatabaseName = $data["image"];
+            }
+        }
+
         try {
-            $updateQuery = $this->db->prepare("UPDATE " . $this->table . " SET price = :price, stock = :stock WHERE id = :id");
+            $updateQuery = $this->db->prepare("
+            UPDATE {$this->table}
+            SET size = :size,
+                color = :color,
+                price = :price,
+                stock = :stock,
+                image = :image
+            WHERE id = :id
+        ");
+
+            $updateQuery->bindParam(":size", $size);
+            $updateQuery->bindParam(":color", $color);
             $updateQuery->bindParam(":price", $price);
             $updateQuery->bindParam(":stock", $stock);
+            $updateQuery->bindParam(":image", $imageDatabaseName);
             $updateQuery->bindParam(":id", $variantID);
+
             $updateQuery->execute();
 
             if ($updateQuery->rowCount() > 0) {
@@ -142,8 +209,8 @@ class ProductVariant extends Products
         $variants = [];
 
         try {
-            $query = $this->db->prepare("SELECT * FROM " . $this->table ." WHERE product_id = :product_id");
-            $query -> bindParam(":product_id",$productID);
+            $query = $this->db->prepare("SELECT * FROM " . $this->table . " WHERE product_id = :product_id");
+            $query->bindParam(":product_id", $productID);
             $query->execute();
             if ($query->rowCount() > 0) {
                 while ($row = $query->fetch(PDO::FETCH_OBJ)) {
@@ -154,6 +221,7 @@ class ProductVariant extends Products
                         "color" => $row->color,
                         "price" => $row->price,
                         "stock" => $row->stock,
+                        "image" => $row->image
                     ];
                 }
             }
@@ -180,9 +248,11 @@ class ProductVariant extends Products
                 $product[] = [
                     "id" => $row->id,
                     "product_id" => $row->product_id,
-                    "price" => $row->price,
                     "size" => $row->size,
+                    "color" => $row->color,
+                    "price" => $row->price,
                     "stock" => $row->stock,
+                    "image" => $row->image
                 ];
             }
             return $product;

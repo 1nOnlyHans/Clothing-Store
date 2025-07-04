@@ -1,12 +1,13 @@
-<div class="modal fade" id="AddCategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="EditCategoryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Add Category</h1>
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Update Category</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="post" id="add-category-form">
+                <form method="post" id="update-category-form">
+                    <input type="hidden" name="categoryID" id="categoryID">
                     <div class="mb-3">
                         <label for="category_name" class="form-label">
                             Category Name
