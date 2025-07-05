@@ -4,9 +4,9 @@ include "./includes/admin_sidebar.php";
 
 <div class="container">
     <div class="page-inner">
-        <h1 class="text-center my-5">Products Inventory</h1>
-        <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#AddProductModal">
-            Add Product
+        <h1 class="text-center my-5">User Management</h1>
+        <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#AddUserModal">
+            Add User
         </button>
         <div class="card">
             <div class="card-body">
@@ -14,11 +14,12 @@ include "./includes/admin_sidebar.php";
                     <table class="table table-bordered" id="product-tbl">
                         <thead>
                             <tr>
-                                <th class="text-center">Product Name</th>
+                                <th class="text-center">Name</th>
                                 <th class="text-center">Image</th>
-                                <th class="text-center">Category</th>
-                                <th class="text-center">Total Variants</th>
-                                <th class="text-center">Total Stocks</th>
+                                <th class="text-center">email</th>
+                                <th class="text-center">Role</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-center">Date Created</th>
                                 <th class="text-center">Actions</th>
                             </tr>
                         </thead>
@@ -32,59 +33,61 @@ include "./includes/admin_sidebar.php";
 </div>
 
 <?php
-include "./includes/AddProductModal.php";
+include "./includes/AddUserModal.php";
 ?>
 <script>
     $(document).ready(function() {
-        fetchProducts();
+        fetchUsers();
 
-        function fetchProducts() {
+        function fetchUsers() {
             $.ajax({
                 method: "GET",
-                url: "./controllers/GetAllProducts.php",
+                url: "./controllers/GetUsers.php",
                 dataType: "json",
                 success: function(response) {
                     console.log(response);
                     $("#product-tbl").DataTable({
                         data: response,
                         columns: [{
-                                data: "name",
-                                class: "text-center"
+                                data: null,
+                                class: "text-center",
+                                render: function(data, type, row) {
+                                    return `${data.firstname} ${data.lastname}`;
+                                }
                             },
                             {
                                 data: null,
                                 class: "text-center",
                                 render: function(data, type, row) {
-                                    return `<img src="./public/uploads/product_images/${data.image}" alt="Product Image" style="width: 150px; height: 150px; object-fit: cover;">`;
+                                    return `<img src="./public/uploads/user_images/${data.profile_img}" alt="Profile Image" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%;">`;
                                 }
                             },
                             {
-                                data: "category_name",
+                                data: "email",
                                 class: "text-center"
                             },
                             {
-                                data: "total_variants",
+                                data: "role",
                                 class: "text-center"
                             },
                             {
-                                data: null,
-                                class: "text-center",
-                                render: function(data, type, row) {
-                                    return `${data.total_stock === null ? '<span class="badge text-bg-danger">Out of Stock</span>' : data.total_stock}`;
-                                }
+                                data: "status",
+                                class: "text-center"
+                            },
+                            {
+                                data: "created_at",
+                                class: "text-center"
                             },
                             {
                                 data: null,
                                 render: function(data, type, row) {
                                     return `
-                                        <div class="d-flex justify-content-center align-content-center gap-3">
-                                            <a href="AdminProductDetails.php?productID=${data.id}" class="btn btn-outline-primary">
-                                                view
-                                            </a>
-                                            <button type="button" class="btn btn-outline-danger delete" data-id="${data.id}">Delete</button>
-                                        </div>`;
-                                },
-                            },
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="AdminUserDetails.php?userID=${data.id}" class="btn btn-outline-primary btn-sm">View</a>
+                    <button type="button" class="btn btn-outline-danger btn-sm delete" data-id="${data.id}">Delete</button>
+                </div>`;
+                                }
+                            }
                         ],
                         destroy: true,
                         responsive: true,
@@ -128,12 +131,12 @@ include "./includes/AddProductModal.php";
             })
         }
 
-        $('#add-product-form').on('submit', function(event) {
+        $('#add-user-form').on('submit', function(event) {
             event.preventDefault();
             const formData = new FormData(this);
             $.ajax({
                 method: "POST",
-                url: "./controllers/AddProduct.php",
+                url: "./controllers/AddUser.php",
                 data: formData,
                 dataType: "json",
                 contentType: false,
@@ -141,9 +144,9 @@ include "./includes/AddProductModal.php";
                 success: function(response) {
                     console.log(response);
                     if (response.status === "success") {
-                        $('#add-product-form')[0].reset();
-                        fetchProducts();
-                        let Modal = bootstrap.Modal.getInstance(document.getElementById('AddProductModal'));
+                        $('#add-user-form')[0].reset();
+                        fetchUsers();
+                        let Modal = bootstrap.Modal.getInstance(document.getElementById('AddUserModal'));
                         Modal.hide();
                         Swal.fire({
                             icon: "success",

@@ -7,7 +7,7 @@ class Dbh
     private $dbpass = "";
     private $dbname = "clothing_store_system";
 
-    protected function Connect()
+    public function Connect()
     {
         try {
             $conn = new PDO('mysql:host=' . $this->dbhost . ';dbname=' . $this->dbname . ';charset=utf8', $this->dbuser, $this->dbpass);

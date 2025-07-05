@@ -4,7 +4,7 @@ if (isset($_SESSION["current_user"])) {
         header("Location: AdminDashboard.php");
         exit;
     } else if ($_SESSION["current_user"]->role === "User") {
-        header("Location: User_dashboard.php");
+        header("Location: UserViewProducts.php");
         exit;
     }
 }

@@ -70,7 +70,7 @@ include "./includes/AddProductModal.php";
                                 data: null,
                                 class: "text-center",
                                 render: function(data, type, row) {
-                                    return `${data.total_stock === null ? '<span class="badge text-bg-danger">Out of Stock</span>' : data.total_stock}`;
+                                    return `${data.total_stock === null ? "0" : data.total_stock}`;
                                 }
                             },
                             {

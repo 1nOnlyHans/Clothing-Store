@@ -10,7 +10,15 @@
                     <div class="mb-3">
                         <input type="hidden" name="variantID" id="VariantID">
                         <label for="size" class="form-label">Size</label>
-                        <input type="text" name="size" id="size" class="form-control" required>
+                        <select name="size" id="size" class="form-select" required>
+                            <option selected>Select Size</option>
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="X">X</option>
+                            <option value="XL">XL</option>
+                            <option value="XXL">XXL</option>
+                            <option value="4XL">4XL</option>
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label for="color" class="form-label">Color</label>
@@ -18,11 +26,19 @@
                     </div>
                     <div class="mb-3">
                         <label for="price" class="form-label">Price</label>
-                        <input type="number" name="price" id="price" step="0.01" class="form-control"required>
+                        <input type="number" name="price" id="price" step="0.01" class="form-control" required>
                     </div>
                     <div class="mb-3">
                         <label for="stock" class="form-label">Stock</label>
                         <input type="number" name="stock" id="stock" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select name="status" id="status" class="form-select">
+                            <option value="Available">Available</option>
+                            <option value="Unavailable">Unavailable</option>
+                            <option value="Out of Stock">Out of Stock</option>
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label for="image" class="form-label">Image</label>

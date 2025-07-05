@@ -49,7 +49,7 @@ include "./includes/navbar.php";
                                 window.location.href = `AdminDashboard.php`;
                             }
                             else if(response.role === "User"){
-                                window.location.href = `UserDashboard.php`;
+                                window.location.href = `index.php`;
                             }
                         },3000)
 

@@ -39,38 +39,54 @@ include "./includes/EditVariantModal.php";
                             `<p class="text-center">No Variants</p>` :
                             response.variants.map((variant) => `
                             <div class="card mb-3">
-                            <div class="card-body">
-                                <div class="row align-items-center">
-                                <div class="col-md-2">
-                                    <div style="width: 100%; height: 100px; overflow: hidden;">
-                                    <img src="./public/uploads/variant_images/${variant.image}"
-                                        alt="Variant Image"
-                                        style="width: 100%; height: 100%; object-fit: cover;"
-                                        class="rounded">
+                                <div class="card-body">
+                                    <div class="row align-items-center g-3">
+                                    <div class="col-md-2">
+                                        <div style="width: 100%; height: 100px; overflow: hidden;">
+                                        <img src="./public/uploads/variant_images/${variant.image}"
+                                            alt="Variant Image"
+                                            style="width: 100%; height: 100%; object-fit: cover;"
+                                            class="rounded">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-10">
+                                        <div class="row">
+                                        <div class="col-md-2">
+                                            <p class="mb-1"><strong>Size:</strong> ${variant.size}</p>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <p class="mb-1"><strong>Color:</strong> ${variant.color}</p>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <p class="mb-1"><strong>Price:</strong> ₱${parseFloat(variant.price).toFixed(2)}</p>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <p class="mb-1"><strong>Stock:</strong> ${variant.stock}</p>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <p class="mb-1"><strong>Status:</strong> <span class="badge ${variant.status === "Available" ? "text-bg-success" : variant.status === "Unavailable" ? "text-bg-danger" : "text-bg-secondary"}">${variant.status}</span></p>
+                                        </div>
+                                        <div class="col-md-2 text-end">
+                                            <div class="d-flex justify-content-end gap-2">
+                                            <button class="btn btn-outline-primary btn-sm edit"
+                                                    data-id="${variant.id}"
+                                                    data-size="${variant.size}"
+                                                    data-color="${variant.color}"
+                                                    data-price="${parseFloat(variant.price).toFixed(2)}"
+                                                    data-stock="${variant.stock}"data-status="${variant.status}">
+                                                Edit
+                                            </button>
+                                            <button class="btn btn-outline-danger btn-sm delete"
+                                                    data-id="${variant.id}">
+                                                Delete
+                                            </button>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
                                     </div>
                                 </div>
-                                <div class="col-md-2">
-                                    <p class="mb-1"><strong>Size:</strong> ${variant.size}</p>
                                 </div>
-                                <div class="col-md-2">
-                                    <p class="mb-1"><strong>Color:</strong> ${variant.color}</p>
-                                </div>
-                                <div class="col-md-2">
-                                    <p class="mb-1"><strong>Price:</strong> ₱${parseFloat(variant.price).toFixed(2)}</p>
-                                </div>
-                                <div class="col-md-2">
-                                    <p class="mb-1"><strong>Stock:</strong> ${variant.stock}</p>
-                                </div>
-                                <div class="col-md-2 text-end">
-                                    <div class="d-flex justify-content-center align-content-center gap-2">
-                                    <button class="btn btn-outline-primary btn-sm edit" data-id="${variant.id}"
-                                    data-size="${variant.size}" data-color="${variant.color}" data-price="${parseFloat(variant.price).toFixed(2)}" data-stock="${variant.stock}">Edit</button>
-                                    <button class="btn btn-outline-danger btn-sm delete" data-id="${variant.id}">Delete</button>
-                                    </div>
-                                </div>
-                                </div>
-                            </div>
-                            </div>
                         `).join("");
                         const productCard = () => `
                     <div class="container py-4">
@@ -232,11 +248,13 @@ include "./includes/EditVariantModal.php";
             const color = $(this).attr('data-color');
             const price = $(this).attr('data-price');
             const stock = $(this).attr('data-stock');
+            const status = $(this).attr('data-status');
             $('#EditVariantModal input[name="variantID"]').val(id);
             $('#EditVariantModal input[name="size"]').val(size);
             $('#EditVariantModal input[name="color"]').val(color);
             $('#EditVariantModal input[name="price"]').val(price);
             $('#EditVariantModal input[name="stock"]').val(stock);
+            $('#EditVariantModal select[name="status"]').val(status);
             $('#EditVariantModal').modal('show');
         });
 

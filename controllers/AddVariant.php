@@ -8,7 +8,8 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
     $price = $_POST["price"] ?? "";
     $stock = $_POST["stock"] ?? "";
     $image = $_FILES["image"] ?? "";
+    $status = $_POST["status"]??"";
     $action = new Admin();
 
-    echo json_encode($action -> AddProductVariant($product_id,$size,$color,$price,$stock,$image));
+    echo json_encode($action -> AddProductVariant($product_id,$size,$color,$price,$stock,$status,$image));
 }

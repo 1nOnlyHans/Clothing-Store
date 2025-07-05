@@ -48,7 +48,7 @@ include "./includes/dashboard_session.php";
               </a>
             </li>
             <li class="nav-item">
-              <a href="#">
+              <a href="AdminUserManagement.php">
                 <i class="fa-solid fa-folder-open"></i>
                 <p>User Management</p>
               </a>
@@ -66,7 +66,7 @@ include "./includes/dashboard_session.php";
               </a>
             </li>
             <li class="nav-item">
-              <a href="reviewer.php">
+              <a href="AdminOrderManagement.php">
                 <i class="fa-solid fa-chalkboard"></i>
                 <p>Orders</p>
               </a>

@@ -1,6 +1,6 @@
 <?php
 include "./includes/navbar.php";
-include "./includes/session.php";
+include "./includes/dashboard_session.php";
 ?>
 
 <!-- Top Navbar -->

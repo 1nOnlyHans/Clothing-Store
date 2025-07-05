@@ -3,12 +3,6 @@
 
 class Image
 {
-    private $db;
-
-    public function __construct($db)
-    {
-        $this->db = $db;
-    }
 
     public function UploadImage($image, $imageDatabaseName, $uploadPath)
     {
@@ -56,11 +50,13 @@ class Image
             $target_file = $target_dir . $newImageName;
             $previousImagePath = $target_dir . $previousImage;
             if (in_array($imageExtension, $valid_ext)) {
-                if (!unlink($previousImagePath)) {
-                    return [
-                        "status" => "error",
-                        "message" => "Failed to delete previous image"
-                    ];
+                if ($previousImage !== "default.png") {
+                    if (!unlink($previousImagePath)) {
+                        return [
+                            "status" => "error",
+                            "message" => "Failed to delete previous image"
+                        ];
+                    }
                 }
                 if (!move_uploaded_file($newImage["tmp_name"], $target_file)) {
                     return [

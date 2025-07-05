@@ -8,15 +8,16 @@ class ProductVariant extends Products
         parent::__construct($db);
     }
 
-    public function addVariant($productID, $size, $color, $price, $stock, $image)
+    public function addVariant($productID, $size, $color, $price, $stock, $status, $image)
     {
         $productID = (int) $productID;
         $price = floatval($price);
         $size = htmlspecialchars(trim($size));
         $color = htmlspecialchars(trim($color));
         $stock = (int) $stock;
+        $status = htmlspecialchars(trim($status));
 
-        if (empty($productID) || empty($price) || empty($size) || empty($color) || empty($stock)) {
+        if (empty($productID) || empty($price) || empty($size) || empty($color) || empty($stock) || empty($status)) {
             return [
                 "status" => "error",
                 "message" => "Fill all the required fields"
@@ -60,8 +61,8 @@ class ProductVariant extends Products
         try {
             $query = $this->db->prepare(
                 "INSERT INTO " . $this->table . " 
-             (product_id, size, color, price, stock,image) 
-             VALUES (:product_id, :size, :color, :price, :stock,:image)"
+             (product_id, size, color, price, stock,image,status) 
+             VALUES (:product_id, :size, :color, :price, :stock,:image,:status)"
             );
             $query->bindParam(":product_id", $productID);
             $query->bindParam(":size", $size);
@@ -69,6 +70,7 @@ class ProductVariant extends Products
             $query->bindParam(":price", $price);
             $query->bindParam(":stock", $stock);
             $query->bindParam(":image", $imageDatabaseName);
+            $query->bindParam(":status", $status);
 
             if ($query->execute()) {
                 return [
@@ -89,15 +91,15 @@ class ProductVariant extends Products
         }
     }
 
-    public function updateVariant($variantID, $size, $color, $price, $stock, $image)
+    public function updateVariant($variantID, $size, $color, $price, $stock, $status,$image)
     {
         $variantID = (int) $variantID;
         $price = floatval($price);
         $size = htmlspecialchars(trim($size));
         $color = htmlspecialchars(trim($color));
         $stock = (int) $stock;
-
-        if (empty($price) || empty($size) || empty($color) || empty($stock)) {
+        $status = htmlspecialchars(trim($status));
+        if (empty($price) || empty($size) || empty($color) || empty($stock) || empty($status)) {
             return [
                 "status" => "error",
                 "message" => "Fill all the required fields"
@@ -137,6 +139,10 @@ class ProductVariant extends Products
             }
         }
 
+        if((int) $stock <= 0){
+            $status = "Out of Stock";
+        }
+        
         try {
             $updateQuery = $this->db->prepare("
             UPDATE {$this->table}
@@ -144,7 +150,8 @@ class ProductVariant extends Products
                 color = :color,
                 price = :price,
                 stock = :stock,
-                image = :image
+                image = :image,
+                status = :status
             WHERE id = :id
         ");
 
@@ -153,6 +160,7 @@ class ProductVariant extends Products
             $updateQuery->bindParam(":price", $price);
             $updateQuery->bindParam(":stock", $stock);
             $updateQuery->bindParam(":image", $imageDatabaseName);
+            $updateQuery->bindParam(":status", $status);
             $updateQuery->bindParam(":id", $variantID);
 
             $updateQuery->execute();
@@ -221,7 +229,8 @@ class ProductVariant extends Products
                         "color" => $row->color,
                         "price" => $row->price,
                         "stock" => $row->stock,
-                        "image" => $row->image
+                        "image" => $row->image,
+                        "status" => $row->status
                     ];
                 }
             }
@@ -252,7 +261,8 @@ class ProductVariant extends Products
                     "color" => $row->color,
                     "price" => $row->price,
                     "stock" => $row->stock,
-                    "image" => $row->image
+                    "image" => $row->image,
+                    "status" => $row->status
                 ];
             }
             return $product;

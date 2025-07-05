@@ -3,6 +3,7 @@ require_once "Dbh.php";
 require_once "Products.php";
 require_once "Categories.php";
 require_once "ProductVariant.php";
+require_once "AdminUserManagement.php";
 
 class Admin extends Dbh
 {
@@ -10,13 +11,14 @@ class Admin extends Dbh
     private $Product;
     private $categories;
     private $productVariants;
-
+    private $UserManagement;
     public function __construct()
     {
         $this->db = $this->Connect();
         $this->Product = new Products($this->db);
         $this->categories = new Category($this->db);
         $this->productVariants = new ProductVariant($this->db);
+        $this->UserManagement = new UserManagement($this->db);
     }
 
     // Product methods
@@ -76,17 +78,19 @@ class Admin extends Dbh
     }
 
     // Product variant methods
-    public function addProductVariant($productID,$size,$color,$price,$stock,$image)
+    public function addProductVariant($productID, $size, $color, $price, $stock,$status,$image)
     {
-        return $this->productVariants->addVariant($productID,$size,$color,$price,$stock,$image);
+        return $this->productVariants->addVariant($productID, $size, $color, $price, $stock,$status,$image);
     }
 
-    public function updateVariant($variantID,$size,$color,$price,$stock,$image){
-        return $this -> productVariants -> updateVariant($variantID,$size,$color,$price,$stock,$image);
+    public function updateVariant($variantID, $size, $color, $price, $stock, $status,$image)
+    {
+        return $this->productVariants->updateVariant($variantID, $size, $color, $price, $stock, $status,$image);
     }
 
-    public function removeVariant($variantID){
-        return $this -> productVariants -> removeVariant($variantID);
+    public function removeVariant($variantID)
+    {
+        return $this->productVariants->removeVariant($variantID);
     }
 
     public function getProductVariants($productID)
@@ -94,4 +98,26 @@ class Admin extends Dbh
         return $this->productVariants->GetAllVariants($productID);
     }
 
+    //UserManagement Methods
+    public function getUserById($id)
+    {
+        return $this->UserManagement->getUserById($id);
+    }
+
+    public function getUserByRole($role)
+    {
+        return $this->UserManagement->getUserByRole($role);
+    }
+
+    public function addUser($firstname,$lastname,$email,$role){
+        return $this -> UserManagement -> addUser($firstname,$lastname,$email,$role);
+    }
+    public function updateUser($id, $firstname, $lastname, $email, $role, $image)
+    {
+        return $this->UserManagement->updateUser($id, $firstname, $lastname, $email, $role, $image);
+    }
+
+    public function deleteUser($id) {
+        return $this->UserManagement->deleteUser($id);
+    }
 }
