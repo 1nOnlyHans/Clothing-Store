@@ -14,7 +14,7 @@
                             <option selected>Select Size</option>
                             <option value="S">S</option>
                             <option value="M">M</option>
-                            <option value="X">X</option>
+                            <option value="L">L</option>
                             <option value="XL">XL</option>
                             <option value="XXL">XXL</option>
                             <option value="4XL">4XL</option>
@@ -27,6 +27,10 @@
                     <div class="mb-3">
                         <label for="price" class="form-label">Price</label>
                         <input type="number" name="price" id="price" step="0.01" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="price" class="form-label">Production Cost</label>
+                        <input type="number" name="production_cost" id="production_cost" step="0.01" class="form-control" required>
                     </div>
                     <div class="mb-3">
                         <label for="stock" class="form-label">Stock</label>

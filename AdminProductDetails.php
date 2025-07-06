@@ -73,6 +73,7 @@ include "./includes/EditVariantModal.php";
                                                     data-size="${variant.size}"
                                                     data-color="${variant.color}"
                                                     data-price="${parseFloat(variant.price).toFixed(2)}"
+                                                    data-production-cost="${parseFloat(variant.production_cost).toFixed(2)}"
                                                     data-stock="${variant.stock}"data-status="${variant.status}">
                                                 Edit
                                             </button>
@@ -89,81 +90,81 @@ include "./includes/EditVariantModal.php";
                                 </div>
                         `).join("");
                         const productCard = () => `
-                    <div class="container py-4">
-                        <div class="page-inner">
-                        <div class="row" style="min-height: 600px;">
-                            
+                        <div class="container py-4">
+                            <div class="row gx-4 gy-4" style="min-height: 600px;">
+
                             <!-- LEFT: Product Image + Form -->
                             <div class="col-lg-4 d-flex flex-column">
-                            
-                            <!-- Image Card WITH product name -->
-                            <div class="card shadow-sm mb-3 flex-grow-1">
-                            <div class="card-body text-center">
-                                <h5 class="card-title mb-3">${product.name}</h5>
-                                <div style="width: 100%; height: 250px; overflow: hidden;">
-                                <img src="./public/uploads/product_images/${product.image}"
-                                    alt="Product Image"
-                                    style="width: 100%; height: 100%; object-fit: cover;"
-                                    class="rounded">
+
+                                <!-- Product Image -->
+                                <div class="card shadow-sm mb-3 flex-grow-1">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title mb-3">${product.name}</h5>
+                                    <div style="width: 100%; height: 250px; overflow: hidden;">
+                                    <img src="./public/uploads/product_images/${product.image}"
+                                        alt="Product Image"
+                                        style="width: 100%; height: 100%; object-fit: cover;"
+                                        class="rounded">
+                                    </div>
                                 </div>
-                            </div>
-                            </div>
-                            
-                            <!-- Update Form Card -->
-                            <div class="card shadow-sm flex-grow-1">
+                                </div>
+
+                                <!-- Update Product Form -->
+                                <div class="card shadow-sm flex-grow-1">
                                 <div class="card-body">
-                                <form id="update-product-form" enctype="multipart/form-data">
+                                    <form id="update-product-form" enctype="multipart/form-data">
                                     <input type="hidden" name="productID" id="productID" value="${product.id}">
 
                                     <div class="mb-3">
-                                    <label for="name" class="form-label">Product Name</label>
-                                    <input type="text" name="name" id="name" class="form-control" value="${product.name}" required>
+                                        <label for="name" class="form-label">Product Name</label>
+                                        <input type="text" name="name" id="name" class="form-control" value="${product.name}" required>
                                     </div>
 
                                     <div class="mb-3">
-                                    <label for="description" class="form-label">Description</label>
-                                    <textarea name="description" id="description" class="form-control" rows="3" required>${product.description}</textarea>
+                                        <label for="description" class="form-label">Description</label>
+                                        <textarea name="description" id="description" class="form-control" rows="3" required>${product.description}</textarea>
                                     </div>
 
                                     <div class="mb-3">
-                                    <label for="category" class="form-label">Category</label>
-                                    <select name="category" id="category" class="form-select">
+                                        <label for="category" class="form-label">Category</label>
+                                        <select name="category" id="category" class="form-select">
                                         ${categoriesOptions}
-                                    </select>
+                                        </select>
                                     </div>
 
                                     <div class="mb-3">
-                                    <label for="image" class="form-label">Replace Image</label>
-                                    <input type="file" name="image" id="image" class="form-control">
+                                        <label for="image" class="form-label">Replace Image</label>
+                                        <input type="file" name="image" id="image" class="form-control">
                                     </div>
 
                                     <button type="submit" class="btn btn-primary w-100">Update Product</button>
-                                </form>
+                                    </form>
                                 </div>
-                            </div>
+                                </div>
+
                             </div>
 
-                            <!-- RIGHT: Variants -->
+                            <!-- RIGHT: Variants List -->
                             <div class="col-lg-8 d-flex flex-column">
-                            <div class="card shadow-sm flex-grow-1 d-flex flex-column">
+                                <div class="card shadow-sm flex-grow-1 d-flex flex-column" style="min-height: 600px;">
                                 <div class="card-body d-flex flex-column">
-                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h3 class="mb-0">Product Variants (${response.variants.length})</h3>
                                     <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#AddProductVariantModal">
-                                    + Add Variant
+                                        + Add Variant
                                     </button>
-                                </div>
-                                <div class="variants-list flex-grow-1 overflow-auto">
+                                    </div>
+                                    <div class="variants-list flex-grow-1 overflow-auto px-2" style="max-height: 500px;">
                                     ${productVariants}
+                                    </div>
                                 </div>
                                 </div>
-                            </div>
                             </div>
 
+                            </div>
                         </div>
-                        </div>
-                    </div>
-                    `;
+                        `;
+
                         container.empty();
                         container.append(productCard);
                     }
@@ -247,12 +248,14 @@ include "./includes/EditVariantModal.php";
             const size = $(this).attr('data-size');
             const color = $(this).attr('data-color');
             const price = $(this).attr('data-price');
+            const production_cost = $(this).attr('data-production-cost');
             const stock = $(this).attr('data-stock');
             const status = $(this).attr('data-status');
             $('#EditVariantModal input[name="variantID"]').val(id);
-            $('#EditVariantModal input[name="size"]').val(size);
+            $('#EditVariantModal select[name="size"]').val(size);
             $('#EditVariantModal input[name="color"]').val(color);
             $('#EditVariantModal input[name="price"]').val(price);
+            $('#EditVariantModal input[name="production_cost"]').val(production_cost);
             $('#EditVariantModal input[name="stock"]').val(stock);
             $('#EditVariantModal select[name="status"]').val(status);
             $('#EditVariantModal').modal('show');

@@ -4,7 +4,8 @@ require_once "Products.php";
 require_once "Categories.php";
 require_once "ProductVariant.php";
 require_once "AdminUserManagement.php";
-
+require_once "AdminOrderManagement.php";
+require_once "Sales.php";
 class Admin extends Dbh
 {
     private $db;
@@ -12,6 +13,9 @@ class Admin extends Dbh
     private $categories;
     private $productVariants;
     private $UserManagement;
+    private $OrderManagement;
+    private $salesManagement;
+
     public function __construct()
     {
         $this->db = $this->Connect();
@@ -19,6 +23,8 @@ class Admin extends Dbh
         $this->categories = new Category($this->db);
         $this->productVariants = new ProductVariant($this->db);
         $this->UserManagement = new UserManagement($this->db);
+        $this->OrderManagement = new AdminOrderManagement($this->db);
+        $this->salesManagement = new AdminSalesManagement($this->db);
     }
 
     // Product methods
@@ -78,14 +84,14 @@ class Admin extends Dbh
     }
 
     // Product variant methods
-    public function addProductVariant($productID, $size, $color, $price, $stock,$status,$image)
+    public function addProductVariant($productID, $size, $color, $price, $stock, $status, $image, $production_cost)
     {
-        return $this->productVariants->addVariant($productID, $size, $color, $price, $stock,$status,$image);
+        return $this->productVariants->addVariant($productID, $size, $color, $price, $stock, $status, $image, $production_cost);
     }
 
-    public function updateVariant($variantID, $size, $color, $price, $stock, $status,$image)
+    public function updateVariant($variantID, $size, $color, $price, $stock, $status, $image, $production_cost)
     {
-        return $this->productVariants->updateVariant($variantID, $size, $color, $price, $stock, $status,$image);
+        return $this->productVariants->updateVariant($variantID, $size, $color, $price, $stock, $status, $image, $production_cost);
     }
 
     public function removeVariant($variantID)
@@ -109,15 +115,49 @@ class Admin extends Dbh
         return $this->UserManagement->getUserByRole($role);
     }
 
-    public function addUser($firstname,$lastname,$email,$role){
-        return $this -> UserManagement -> addUser($firstname,$lastname,$email,$role);
+    public function addUser($firstname, $lastname, $email, $role)
+    {
+        return $this->UserManagement->addUser($firstname, $lastname, $email, $role);
     }
     public function updateUser($id, $firstname, $lastname, $email, $role, $image)
     {
         return $this->UserManagement->updateUser($id, $firstname, $lastname, $email, $role, $image);
     }
 
-    public function deleteUser($id) {
+    public function deleteUser($id)
+    {
         return $this->UserManagement->deleteUser($id);
+    }
+
+    //Orders
+
+    public function getAllOrders()
+    {
+        return $this->OrderManagement->getAllOrders();
+    }
+
+    public function getOrderDetails($orderID)
+    {
+        return $this->OrderManagement->getOrderDetails($orderID);
+    }
+
+    public function toShip($orderID)
+    {
+        return $this->OrderManagement->toShip($orderID);
+    }
+
+    public function getDashboardDatas()
+    {
+        return [
+            "top_products" => $this->salesManagement->getTopProducts(),
+            "orders_data" => [
+                "remaining_orders" => $this->OrderManagement->getTotalOrderDatas()["processing_orders"],
+                "to_ship_orders" => $this->OrderManagement->getTotalOrderDatas()["to_ship_orders"],
+                "delivered_orders" => $this->OrderManagement->getTotalOrderDatas()["deliveredOrders"],
+                "latest_orders" => $this->OrderManagement->getTotalOrderDatas()["latest_orders"]
+            ],
+            "sales_data" => $this -> salesManagement -> getSalesData(),
+            "item_sold" => $this->salesManagement->getTotalItemsSold()
+        ];
     }
 }

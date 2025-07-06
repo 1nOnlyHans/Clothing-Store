@@ -8,16 +8,17 @@ class ProductVariant extends Products
         parent::__construct($db);
     }
 
-    public function addVariant($productID, $size, $color, $price, $stock, $status, $image)
+    public function addVariant($productID, $size, $color, $price, $stock, $status, $image, $productionCost)
     {
         $productID = (int) $productID;
         $price = floatval($price);
+        $productionCost = floatval($productionCost);
         $size = htmlspecialchars(trim($size));
         $color = htmlspecialchars(trim($color));
         $stock = (int) $stock;
         $status = htmlspecialchars(trim($status));
 
-        if (empty($productID) || empty($price) || empty($size) || empty($color) || empty($stock) || empty($status)) {
+        if (empty($productID) || empty($price) || empty($size) || empty($color) || empty($stock) || empty($status) || empty($productionCost)) {
             return [
                 "status" => "error",
                 "message" => "Fill all the required fields"
@@ -61,13 +62,14 @@ class ProductVariant extends Products
         try {
             $query = $this->db->prepare(
                 "INSERT INTO " . $this->table . " 
-             (product_id, size, color, price, stock,image,status) 
-             VALUES (:product_id, :size, :color, :price, :stock,:image,:status)"
+                 (product_id, size, color, price, production_cost, stock, image, status) 
+                 VALUES (:product_id, :size, :color, :price, :production_cost, :stock, :image, :status)"
             );
             $query->bindParam(":product_id", $productID);
             $query->bindParam(":size", $size);
             $query->bindParam(":color", $color);
             $query->bindParam(":price", $price);
+            $query->bindParam(":production_cost", $productionCost);
             $query->bindParam(":stock", $stock);
             $query->bindParam(":image", $imageDatabaseName);
             $query->bindParam(":status", $status);
@@ -91,15 +93,17 @@ class ProductVariant extends Products
         }
     }
 
-    public function updateVariant($variantID, $size, $color, $price, $stock, $status,$image)
+    public function updateVariant($variantID, $size, $color, $price, $stock, $status, $image, $productionCost)
     {
         $variantID = (int) $variantID;
         $price = floatval($price);
+        $productionCost = floatval($productionCost);
         $size = htmlspecialchars(trim($size));
         $color = htmlspecialchars(trim($color));
         $stock = (int) $stock;
         $status = htmlspecialchars(trim($status));
-        if (empty($price) || empty($size) || empty($color) || empty($stock) || empty($status)) {
+
+        if (empty($price) || empty($size) || empty($color) || empty($stock) || empty($status) || empty($productionCost)) {
             return [
                 "status" => "error",
                 "message" => "Fill all the required fields"
@@ -114,7 +118,7 @@ class ProductVariant extends Products
             ];
         }
 
-        // ✅ SAME image update logic
+        
         $imageDatabaseName = null;
 
         if (isset($image) && !empty($image["tmp_name"])) {
@@ -142,22 +146,24 @@ class ProductVariant extends Products
         if((int) $stock <= 0){
             $status = "Out of Stock";
         }
-        
+
         try {
             $updateQuery = $this->db->prepare("
-            UPDATE {$this->table}
-            SET size = :size,
-                color = :color,
-                price = :price,
-                stock = :stock,
-                image = :image,
-                status = :status
-            WHERE id = :id
-        ");
+                UPDATE {$this->table}
+                SET size = :size,
+                    color = :color,
+                    price = :price,
+                    production_cost = :production_cost,
+                    stock = :stock,
+                    image = :image,
+                    status = :status
+                WHERE id = :id
+            ");
 
             $updateQuery->bindParam(":size", $size);
             $updateQuery->bindParam(":color", $color);
             $updateQuery->bindParam(":price", $price);
+            $updateQuery->bindParam(":production_cost", $productionCost);
             $updateQuery->bindParam(":stock", $stock);
             $updateQuery->bindParam(":image", $imageDatabaseName);
             $updateQuery->bindParam(":status", $status);
@@ -184,10 +190,12 @@ class ProductVariant extends Products
         }
     }
 
+
+
     public function removeVariant($variantID)
     {
+        
         $variantID = (int) $variantID;
-
         try {
             $deleteQuery = $this->db->prepare("DELETE FROM " . $this->table . " WHERE id = :id");
             $deleteQuery->bindParam(":id", $variantID);
@@ -215,7 +223,6 @@ class ProductVariant extends Products
     public function GetAllVariants($productID)
     {
         $variants = [];
-
         try {
             $query = $this->db->prepare("SELECT * FROM " . $this->table . " WHERE product_id = :product_id");
             $query->bindParam(":product_id", $productID);
@@ -228,6 +235,7 @@ class ProductVariant extends Products
                         "size" => $row->size,
                         "color" => $row->color,
                         "price" => $row->price,
+                        "production_cost" => $row->production_cost,
                         "stock" => $row->stock,
                         "image" => $row->image,
                         "status" => $row->status
@@ -260,6 +268,7 @@ class ProductVariant extends Products
                     "size" => $row->size,
                     "color" => $row->color,
                     "price" => $row->price,
+                    "production_cost" => $row->production_cost,
                     "stock" => $row->stock,
                     "image" => $row->image,
                     "status" => $row->status
@@ -274,3 +283,4 @@ class ProductVariant extends Products
         }
     }
 }
+?>

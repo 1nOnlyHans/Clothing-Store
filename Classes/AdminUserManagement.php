@@ -57,7 +57,7 @@ class UserManagement
         }
     }
 
-    public function addUser($firstname, $lastname,$email,$role)
+    public function addUser($firstname, $lastname, $email, $role)
     {
         $firstname = htmlspecialchars(trim($firstname));
         $lastname = htmlspecialchars(trim($lastname));
@@ -87,7 +87,7 @@ class UserManagement
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
         try {
-            $query = $this->db->prepare("INSERT INTO " . $this -> table . " (firstname,lastname,email,password,role) VALUES (:firstname,:lastname,:email,:password,:role)");
+            $query = $this->db->prepare("INSERT INTO " . $this->table . " (firstname,lastname,email,password,role) VALUES (:firstname,:lastname,:email,:password,:role)");
             $query->bindParam(":firstname", $firstname);
             $query->bindParam(":lastname", $lastname);
             $query->bindParam(":email", $email);
@@ -184,6 +184,74 @@ class UserManagement
             return [
                 "status" => "error",
                 "message" => "Database error: " . $e->getMessage()
+            ];
+        }
+    }
+
+    public function changePassword($userId, $currentPassword, $newPassword, $confirmPassword)
+    {
+        // 1. Validate new password & confirm match
+        if (empty($newPassword) || empty($confirmPassword)) {
+            return [
+                "status" => "error",
+                "message" => "Please fill in all password fields."
+            ];
+        }
+
+        if ($newPassword !== $confirmPassword) {
+            return [
+                "status" => "error",
+                "message" => "New password and confirmation do not match."
+            ];
+        }
+
+        if (strlen($newPassword) < 6) {
+            return [
+                "status" => "error",
+                "message" => "Password must be at least 6 characters long."
+            ];
+        }
+
+        // 2. Fetch the current hashed password
+        $query = $this->db->prepare("SELECT password FROM {$this->table} WHERE id = :id");
+        $query->bindParam(":id", $userId);
+        $query->execute();
+
+        if ($query->rowCount() == 0) {
+            return [
+                "status" => "error",
+                "message" => "User not found."
+            ];
+        }
+
+        $row = $query->fetch(PDO::FETCH_ASSOC);
+        $hashedPassword = $row["password"];
+
+        // 3. Verify current password
+        if (!password_verify($currentPassword, $hashedPassword)) {
+            return [
+                "status" => "error",
+                "message" => "Current password is incorrect."
+            ];
+        }
+
+        // 4. Hash and update to new password
+        $newHashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+
+        $updateQuery = $this->db->prepare("UPDATE {$this->table} SET password = :password WHERE id = :id");
+        $updateQuery->bindParam(":password", $newHashedPassword);
+        $updateQuery->bindParam(":id", $userId);
+        $updateQuery->execute();
+
+        if ($updateQuery->rowCount() > 0) {
+            return [
+                "status" => "success",
+                "message" => "Password updated successfully."
+            ];
+        } else {
+            return [
+                "status" => "warning",
+                "message" => "No changes made."
             ];
         }
     }

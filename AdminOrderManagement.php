@@ -4,21 +4,23 @@ include "./includes/admin_sidebar.php";
 
 <div class="container">
     <div class="page-inner">
-        <h1 class="text-center my-5">Products Inventory</h1>
-        <button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#AddProductModal">
-            Add Product
-        </button>
+        <h1 class="text-center my-5">Orders</h1>
         <div class="card">
             <div class="card-body">
                 <div style="overflow-x: auto;">
-                    <table class="table table-bordered" id="product-tbl">
+                    <table class="table table-bordered" id="order-tbl">
                         <thead>
                             <tr>
-                                <th class="text-center">Product Name</th>
+                                <th class="text-center">ORD</th>
+                                <th class="text-center">Name</th>
                                 <th class="text-center">Image</th>
-                                <th class="text-center">Category</th>
-                                <th class="text-center">Total Variants</th>
-                                <th class="text-center">Total Stocks</th>
+                                <th class="text-center">Email</th>
+                                <th class="text-center">Payment Method</th>
+                                <th class="text-center">Payment Status</th>
+                                <th class="text-center">Shipping Address</th>
+                                <th class="text-center">Total Amount</th>
+                                <th class="text-center">Order Status</th>
+                                <th class="text-center">Order Date</th>
                                 <th class="text-center">Actions</th>
                             </tr>
                         </thead>
@@ -41,36 +43,72 @@ include "./includes/AddProductModal.php";
         function fetchProducts() {
             $.ajax({
                 method: "GET",
-                url: "./controllers/GetAllProducts.php",
+                url: "./controllers/adminGetAllOrders.php",
                 dataType: "json",
                 success: function(response) {
                     console.log(response);
-                    $("#product-tbl").DataTable({
-                        data: response,
+                    $("#order-tbl").DataTable({
+                        data: response.orders,
                         columns: [{
-                                data: "name",
+                                data: "order_number",
                                 class: "text-center"
                             },
                             {
                                 data: null,
                                 class: "text-center",
                                 render: function(data, type, row) {
-                                    return `<img src="./public/uploads/product_images/${data.image}" alt="Product Image" style="width: 150px; height: 150px; object-fit: cover;">`;
+                                    return data.firstname + " " + data.lastname;
                                 }
                             },
                             {
-                                data: "category_name",
+                                data: null,
+                                class: "text-center",
+                                render: function(data, type, row) {
+                                    return `<img src="./public/uploads/user_images/${data.profile_img}" alt="Product Image" style="width: 50px; height: 50px; object-fit: cover;">`;
+                                }
+                            },
+                            {
+                                data: "email",
                                 class: "text-center"
                             },
                             {
-                                data: "total_variants",
+                                data: "payment_method",
+                                class: "text-center"
+                            },
+                            {
+                                data: "payment_status",
+                                class: "text-center"
+                            },
+                            {
+                                data: "shipping_address",
+                                class: "text-center"
+                            },
+                            {
+                                data: "total_amount",
                                 class: "text-center"
                             },
                             {
                                 data: null,
                                 class: "text-center",
+                                render: function(data,type,row){
+                                    return `<p class="mb-1"><span class="badge ${data.order_status === "Processing" ? "text-bg-warning" : data.order_status === "To Ship" ? "text-bg-primary" : "text-bg-success"}">${data.order_status}</span></p>`;
+                                }
+                            },
+                            {
+                                data: null,
+                                class: "text-center",
                                 render: function(data, type, row) {
-                                    return `${data.total_stock === null ? "0" : data.total_stock}`;
+                                    const formatDate = new Date(data.order_date).toLocaleDateString(
+                                        "en-US", {
+                                            year: "numeric",
+                                            month: "long",
+                                            day: "numeric",
+                                            hour: "numeric",
+                                            minute: "2-digit",
+                                            hour12: true
+                                        }
+                                    )
+                                    return formatDate;
                                 }
                             },
                             {
@@ -78,10 +116,9 @@ include "./includes/AddProductModal.php";
                                 render: function(data, type, row) {
                                     return `
                                         <div class="d-flex justify-content-center align-content-center gap-3">
-                                            <a href="AdminProductDetails.php?productID=${data.id}" class="btn btn-outline-primary">
-                                                view
+                                            <a href="AdminViewOrderDetails.php?orderID=${data.order_id}" class="btn btn-outline-primary">
+                                                View
                                             </a>
-                                            <button type="button" class="btn btn-outline-danger delete" data-id="${data.id}">Delete</button>
                                         </div>`;
                                 },
                             },
@@ -94,13 +131,13 @@ include "./includes/AddProductModal.php";
                         ],
                         pageLength: 5,
                         paging: true,
-                        dom: "Blfrtip", // ✅ makes sure length, filter, info, pagination show
+                        dom: "Blfrtip",
                         buttons: [{
                                 extend: "print",
                                 text: "🖨️ Print",
                                 className: "btn btn-warning me-3 mb-3",
                                 exportOptions: {
-                                    columns: [0, 2, 3, 4]
+                                    columns: [0, 1, 3, 4, 5, 6, 7, 8, 9]
                                 }
                             },
                             {
@@ -108,7 +145,7 @@ include "./includes/AddProductModal.php";
                                 text: "📄 CSV",
                                 className: "btn btn-success me-3 mb-3",
                                 exportOptions: {
-                                    columns: [0, 2, 3, 4]
+                                    columns: [0, 1, 3, 4, 5, 6, 7, 8, 9]
                                 }
                             },
                             {
@@ -116,7 +153,7 @@ include "./includes/AddProductModal.php";
                                 text: "📑 PDF",
                                 className: "btn btn-danger me-3 mb-3",
                                 exportOptions: {
-                                    columns: [0, 2, 3, 4]
+                                    columns: [0, 1, 3, 4, 5, 6, 7, 8, 9]
                                 }
                             }
                         ]
@@ -141,8 +178,8 @@ include "./includes/AddProductModal.php";
                 success: function(response) {
                     console.log(response);
                     if (response.status === "success") {
-                        $('#add-product-form')[0].reset();
                         fetchProducts();
+                        $('#add-product-form')[0].reset();
                         let Modal = bootstrap.Modal.getInstance(document.getElementById('AddProductModal'));
                         Modal.hide();
                         Swal.fire({

@@ -13,10 +13,13 @@ include "header.php";
                 <?php
                 if (isset($_SESSION["current_user"])) {
                     echo '<li class="nav-item">
-                                <a class="nav-link active" href="UserViewProducts.php">Products</a>
+                                <a class="nav-link active" href="ViewProducts.php">Products</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="UserViewCart.php">MyCart</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="UserOrderHistory.php">Order history</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="UserProfile.php">MyProfile</a>

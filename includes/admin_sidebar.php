@@ -23,7 +23,7 @@ include "./includes/dashboard_session.php";
       <div class="sidebar-logo">
         <!-- Logo Header -->
         <div class="logo-header bg-secondary">
-          <p class="text-dark h5">Admin Panel</p>
+          <p class="text-white h5">Admin Panel</p>
           <div class="nav-toggle">
             <button class="btn btn-toggle toggle-sidebar">
               <i class="gg-menu-right"></i>

@@ -4,7 +4,6 @@ class Order
 {
     private $db;
 
-
     public function __construct($db)
     {
         $this->db = $db;
@@ -44,7 +43,7 @@ class Order
 
             $cartItems = $fetchCartItems->fetchAll(PDO::FETCH_OBJ);
 
-            // ✅ Check stocks first
+            // Check stocks first
             foreach ($cartItems as $item) {
                 if ($item->quantity > $item->product_stock) {
                     $this->db->rollBack();
@@ -89,10 +88,6 @@ class Order
                 (:order_id, :product_id, :variant_id, :quantity, :unit_price, :total_price)
         ");
 
-            $updateStock = $this->db->prepare("
-            UPDATE product_variants SET stock = :stock, status = :status WHERE id = :variant_id
-        ");
-
             foreach ($cartItems as $item) {
                 $insertOrderItem->bindParam(":order_id", $orderID);
                 $insertOrderItem->bindParam(":product_id", $item->product_id);
@@ -103,18 +98,11 @@ class Order
 
                 $insertOrderItem->execute();
 
-                $newStock = $item->product_stock - $item->quantity;
-                $newStock === 0 ? $currentStatus = "Out of Stock" : $currentStatus = $item->status;
-                $updateStock->bindParam(":stock", $newStock);
-                $updateStock->bindParam(":status", $currentStatus);
-                $updateStock->bindParam(":variant_id", $item->variant_id);
-                $updateStock->execute();
             }
 
             $clearCart = $this->db->prepare("DELETE FROM cart WHERE user_id = :user_id");
             $clearCart->bindParam(":user_id", $userID);
             $clearCart->execute();
-
 
             $this->db->commit();
 
@@ -159,4 +147,6 @@ class Order
             ];
         }
     }
+
+
 }

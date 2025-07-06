@@ -59,7 +59,7 @@ include "./includes/AddUserModal.php";
                                 data: null,
                                 class: "text-center",
                                 render: function(data, type, row) {
-                                    return `<img src="./public/uploads/user_images/${data.profile_img}" alt="Profile Image" style="width: 80px; height: 80px; object-fit: cover; border-radius: 50%;">`;
+                                    return `<img src="./public/uploads/user_images/${data.profile_img}" alt="Profile Image" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">`;
                                 }
                             },
                             {

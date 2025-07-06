@@ -55,7 +55,7 @@ include "./includes/AddProductModal.php";
                                 data: null,
                                 class: "text-center",
                                 render: function(data, type, row) {
-                                    return `<img src="./public/uploads/product_images/${data.image}" alt="Product Image" style="width: 150px; height: 150px; object-fit: cover;">`;
+                                    return `<img src="./public/uploads/product_images/${data.image}" alt="Product Image" style="width: 50px; height: 50px; object-fit: cover;">`;
                                 }
                             },
                             {

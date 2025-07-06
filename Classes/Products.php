@@ -27,7 +27,7 @@ class Products
             ];
         }
 
-        if (isset($image) && !empty($image)) {
+        if (isset($image) && !empty($image["tmp_name"])) {
             $imageDatabaseName = time() . '_' . basename($image["name"]);
             $imageUpload = $this->imageUpload->UploadImage($image, $imageDatabaseName, "../public/uploads/product_images/");
             if ($imageUpload["status"] === "error") {
@@ -167,6 +167,13 @@ class Products
     public function GetAllProducts()
     {
         $products = [];
+
+        $update = $this->db->prepare(
+            "UPDATE product_variants 
+             SET status = 'Unavailable'
+             WHERE stock = 0"
+        );
+        $update->execute();
         try {
             $query = $this->db->prepare(
                 "SELECT 
@@ -183,7 +190,8 @@ class Products
                 GROUP BY 
                 categories.id, 
                 products.id
-            ");
+            "
+            );
             $query->execute();
             if ($query->rowCount() > 0) {
                 while ($row = $query->fetch(PDO::FETCH_OBJ)) {
@@ -194,8 +202,8 @@ class Products
                         "image" => $row->image,
                         "category" => $row->category_id,
                         "category_name" => $row->category_name,
-                        "total_stock" => $row -> total_stock,
-                        "total_variants" => $row -> total_variants
+                        "total_stock" => $row->total_stock,
+                        "total_variants" => $row->total_variants
                     ];
                 }
             }
@@ -212,6 +220,14 @@ class Products
     {
         $id = (int) $id;
         $product = [];
+
+        $update = $this->db->prepare(
+            "UPDATE product_variants 
+             SET status = 'Out of Stock'
+             WHERE stock = 0"
+        );
+        $update->execute();
+
         try {
             $query = $this->db->prepare("SELECT categories.*, products.* FROM categories
                  INNER JOIN products ON products.category_id = categories.id WHERE products.id = :id");
@@ -238,11 +254,63 @@ class Products
         }
     }
 
-    // public function getTotalStocks($productID){
-    //     $productID = (int) $productID;
-    //     $query = $this -> db -> prepare("SELECT SUM(stock) as total_stocks FROM product_variants WHERE product_id = 2");
-    //     $query -> bindParam(":product_id",$productID);
-    //     $query -> execute();
-    //     return $query -> fetchColumn();
-    // }
+    public function viewProducts($product_name, $category)
+    {
+        $products = [];
+        $sql = "
+            SELECT 
+                categories.*, 
+                products.*, 
+                SUM(product_variants.stock) AS total_stock,
+                COUNT(product_variants.id) AS total_variants
+            FROM 
+                categories
+            INNER JOIN 
+                products ON categories.id = products.category_id
+            LEFT JOIN 
+                product_variants ON products.id = product_variants.product_id
+        ";
+
+        $conditions = [];
+        if (!empty($product_name)) {
+            $conditions[] = "products.name LIKE :product_name";
+        }
+        if (!empty($category)) {
+            $conditions[] = "products.category_id = :category_id";
+        }
+
+        if ($conditions) {
+            $sql .= " WHERE " . implode(" AND ", $conditions);
+        }
+
+        $sql .= " GROUP BY categories.id, products.id";
+
+        $query = $this->db->prepare($sql);
+
+        if (!empty($product_name)) {
+            $query->bindValue(":product_name", "%" . $product_name . "%");
+        }
+        if (!empty($category)) {
+            $query->bindValue(":category_id", $category);
+        }
+
+        $query->execute();
+
+        if ($query->rowCount() > 0) {
+            while ($row = $query->fetch(PDO::FETCH_OBJ)) {
+                $products[] = [
+                    "id" => $row->id,
+                    "name" => $row->name,
+                    "description" => $row->description,
+                    "image" => $row->image,
+                    "category" => $row->category_id,
+                    "category_name" => $row->category_name,
+                    "total_stock" => $row->total_stock,
+                    "total_variants" => $row->total_variants
+                ];
+            }
+        }
+
+        return $products;
+    }
 }

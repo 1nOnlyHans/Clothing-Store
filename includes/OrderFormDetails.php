@@ -11,7 +11,7 @@
       <!-- Modal Body -->
       <div class="modal-body">
         <!-- Example shipping address -->
-         <input type="text" name="total_amount" id="total_amount">
+         <input type="hidden" name="total_amount" id="total_amount">
         <div class="mb-3">
           <label for="shipping_address" class="form-label">Shipping Address</label>
           <textarea class="form-control" name="shipping_address" id="shipping_address" rows="3" required></textarea>
@@ -23,7 +23,7 @@
           <select class="form-select" name="payment_method" id="payment_method" required>
             <option value="">Select Payment Method</option>
             <option value="COD">Cash On Delivery</option>
-            <option value="GCash">GCash</option>
+            <option value="Gcash">GCash</option>
           </select>
         </div>  
 
