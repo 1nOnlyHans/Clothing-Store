@@ -45,14 +45,14 @@ include "./includes/admin_sidebar.php";
                 </div>
             </div>
 
-            <div class="col-md-6 col-sm-12">
+            <!-- <div class="col-md-6 col-sm-12">
                 <div class="card">
                     <h1 class="text-center">Top Product Sold</h1>
                     <div class="card-body">
                         <canvas id="topProducts" width="800px" height="400px"></canvas>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <div class="col-md-12 col-sm-12 mt-4">
                 <div class="card">
@@ -87,7 +87,8 @@ include "./includes/admin_sidebar.php";
     }
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+
 <script>
     $(document).ready(function() {
         getDatas();
@@ -101,42 +102,42 @@ include "./includes/admin_sidebar.php";
                     console.log(response);
 
                     // === TOP PRODUCTS ===
-                    const topProductsChart = document.getElementById('topProducts');
-                    if (response.top_products.status !== "error" && response.top_products.length > 0) {
-                        const topProductsName = response.top_products.map(item => item.product_name);
-                        const totalUnitsSold = response.top_products.map(item => parseInt(item.total_units_sold));
-                        new Chart(topProductsChart, {
-                            type: 'bar',
-                            data: {
-                                labels: topProductsName,
-                                datasets: [{
-                                    label: 'Units Sold',
-                                    data: totalUnitsSold,
-                                    backgroundColor: [
-                                        'rgba(54, 162, 235, 0.7)',
-                                        'rgba(255, 99, 132, 0.7)',
-                                        'rgba(255, 206, 86, 0.7)',
-                                        'rgba(75, 192, 192, 0.7)'
-                                    ]
-                                }]
-                            },
-                            options: {
-                                indexAxis: 'y',
-                                responsive: true,
-                                scales: {
-                                    x: {
-                                        beginAtZero: true
-                                    }
-                                }
-                            }
-                        });
-                    } else {
-                        $(topProductsChart).replaceWith(`
-                            <div class="alert alert-info text-center">
-                                No top product data available.
-                            </div>
-                        `);
-                    }
+                    // const topProductsChart = document.getElementById('topProducts');
+                    // if (response.top_products.status !== "error" && response.top_products.length > 0) {
+                    //     const topProductsName = response.top_products.map(item => item.product_name);
+                    //     const totalUnitsSold = response.top_products.map(item => parseInt(item.total_units_sold));
+                    //     new Chart(topProductsChart, {
+                    //         type: 'bar',
+                    //         data: {
+                    //             labels: topProductsName,
+                    //             datasets: [{
+                    //                 label: 'Units Sold',
+                    //                 data: totalUnitsSold,
+                    //                 backgroundColor: [
+                    //                     'rgba(54, 162, 235, 0.7)',
+                    //                     'rgba(255, 99, 132, 0.7)',
+                    //                     'rgba(255, 206, 86, 0.7)',
+                    //                     'rgba(75, 192, 192, 0.7)'
+                    //                 ]
+                    //             }]
+                    //         },
+                    //         options: {
+                    //             indexAxis: 'y',
+                    //             responsive: true,
+                    //             scales: {
+                    //                 x: {
+                    //                     beginAtZero: true
+                    //                 }
+                    //             }
+                    //         }
+                    //     });
+                    // } else {
+                    //     $(topProductsChart).replaceWith(`
+                    //         <div class="alert alert-info text-center">
+                    //             No top product data available.
+                    //         </div>
+                    //     `);
+                    // }
 
                     // === ORDERS COUNT ===
                     const ordersData = response.orders_data;

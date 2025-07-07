@@ -9,7 +9,8 @@
         $totalAmount = $_POST["total_amount"];
         $shipping_address = $_POST["shipping_address"];
         $payment_method = $_POST["payment_method"];
+        $gcash_number = $_POST["gcash_number"];
         $action = new Order($conn);
-        echo json_encode($action -> placeOrder($userID,$totalAmount,$payment_method,$shipping_address));
+        echo json_encode($action -> placeOrder($userID,$totalAmount,$payment_method,$gcash_number,$shipping_address));
     }
 ?>

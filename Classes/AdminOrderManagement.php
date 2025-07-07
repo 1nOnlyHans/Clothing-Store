@@ -49,6 +49,8 @@ class AdminOrderManagement
             orders.shipping_address,
             orders.total_amount,
             orders.payment_method,
+            orders.payment_status,
+            orders.gcash_number,
             orders.created_at AS order_date,
             
             order_items.id AS order_item_id,

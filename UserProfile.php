@@ -12,11 +12,11 @@ if (!isset($_SESSION['current_user'])) {
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-secondary text-white">
                     <h5 class="mb-0">User Profile</h5>
                 </div>
                 <div class="card-body">
-                    <p><strong>Username:</strong> <?php echo htmlspecialchars($_SESSION["current_user"] -> firstname); ?></p>
+                    <p><strong>Name:</strong> <?php echo htmlspecialchars($_SESSION["current_user"] -> firstname . " " . $_SESSION["current_user"] -> lastname); ?></p>
                     <p><strong>Email:</strong> <?php echo htmlspecialchars($_SESSION["current_user"] -> email); ?></p>
                     <!-- Add more user info as needed -->
 

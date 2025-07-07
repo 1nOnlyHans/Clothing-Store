@@ -119,6 +119,11 @@ include "./includes/AddUserModal.php";
                             <h5 class="mb-3"><strong>Shipping Address</strong></h5>
                             <p class="mb-0">${response[0].shipping_address}</p>
                             <hr>
+                            <h5 class="mb-3"><strong>Payment Method</strong></h5>
+                            <p class="mb-0">Payment Method: ${response[0].payment_method}</p>
+                            <p class="mb-0">Payment Status: ${response[0].payment_status}</p>
+                            ${response[0].payment_method === "Gcash" ? `<p class="mb-0">Gcash Number: ${response[0].gcash_number}</p>` : ""}
+                            <hr>
                             <h5 class="mb-3"><strong>Order Status</strong></h5>
                             <span class="badge ${
                                 response[0].order_status === "Delivered" ? "bg-success" :

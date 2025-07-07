@@ -14,10 +14,14 @@ class Order
         return 'ORD-' . date('Ymd') . '-' . rand(10000, 99999);
     }
 
-    public function placeOrder($userID, $totalAmount, $payment_method, $shippingAddress)
+    public function placeOrder($userID, $totalAmount, $payment_method, $gcash_number, $shippingAddress)
     {
         try {
             $this->db->beginTransaction();
+
+            if (empty($gcash_number)) {
+                $gcash_number = "";
+            }
 
             // Fetch cart items
             $fetchCartItems = $this->db->prepare("
@@ -63,15 +67,16 @@ class Order
             // Insert into orders
             $insertOrder = $this->db->prepare("
             INSERT INTO orders 
-                (user_id, order_number, total_amount, payment_method, payment_status, shipping_address)
+                (user_id, order_number, total_amount, payment_method, payment_status, gcash_number,shipping_address)
             VALUES
-                (:user_id, :order_number, :total_amount, :payment_method, :payment_status, :shipping_address)
+                (:user_id, :order_number, :total_amount, :payment_method, :payment_status, :gcash_number,:shipping_address)
         ");
             $insertOrder->bindParam(":user_id", $userID);
             $insertOrder->bindParam(":order_number", $orderNumber);
             $insertOrder->bindParam(":total_amount", $totalAmount);
             $insertOrder->bindParam(":payment_method", $payment_method);
             $insertOrder->bindParam(":payment_status", $paymentStatus);
+            $insertOrder->bindParam(":gcash_number", $gcash_number);
             $insertOrder->bindParam(":shipping_address", $shippingAddress);
 
             if (!$insertOrder->execute()) {
@@ -149,7 +154,7 @@ class Order
 
     public function getOrderDetails($orderID, $userID)
     {
-        $fetchorderItems = $this->db->prepare("SELECT orders.id AS order_id,orders.user_id as user_id,order_status,orders.order_number, orders.shipping_address, orders.total_amount, orders.payment_status,orders.payment_method, orders.created_at AS order_date, order_items.id AS order_item_id, order_items.quantity AS item_quantity, order_items.unit_price AS unit_price, order_items.total_price as total_unit_price, product_variants.id AS variant_id,products.name as product_name, product_variants.size AS variant_size, product_variants.color AS variant_color, product_variants.stock AS variant_stock, product_variants.image, product_variants.status as product_status FROM orders INNER JOIN order_items ON orders.id = order_items.order_id INNER JOIN product_variants ON order_items.variant_id = product_variants.id INNER JOIN products ON order_items.product_id = products.id WHERE
+        $fetchorderItems = $this->db->prepare("SELECT orders.id AS order_id,orders.user_id as user_id,order_status,orders.order_number, orders.shipping_address, orders.total_amount, orders.payment_status,orders.payment_method, orders.gcash_number,orders.created_at AS order_date, order_items.id AS order_item_id, order_items.quantity AS item_quantity, order_items.unit_price AS unit_price, order_items.total_price as total_unit_price, product_variants.id AS variant_id,products.name as product_name, product_variants.size AS variant_size, product_variants.color AS variant_color, product_variants.stock AS variant_stock, product_variants.image, product_variants.status as product_status FROM orders INNER JOIN order_items ON orders.id = order_items.order_id INNER JOIN product_variants ON order_items.variant_id = product_variants.id INNER JOIN products ON order_items.product_id = products.id WHERE
         orders.id = :order_id and orders.user_id = :user_id");
 
         $fetchorderItems->bindParam(":order_id", $orderID);

@@ -134,6 +134,7 @@ include "./includes/dashboard_session.php";
                 data: formData,
                 dataType: "json",
                 success: function(response){
+                    console.log(response);
                     if(response.status === "success"){
                         getCartItems();
                         $('#place-order-form')[0].reset();
@@ -184,5 +185,15 @@ include "./includes/dashboard_session.php";
                 }
             });
         });
+
+        $('#payment_method').on("change",function(){
+            if($(this).val() === "Gcash"){
+                $('#gcash_number_container').removeClass("d-none");
+            }
+            else{
+                $('#gcash_number_container').addClass("d-none");
+            }
+        });
+
     });
 </script>

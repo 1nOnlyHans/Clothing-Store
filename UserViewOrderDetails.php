@@ -28,15 +28,19 @@ require "./Classes/Order.php";
 
                         $first = $orders[0];
                         echo '
-                            <h5>Order Number: ' . $first->order_number . '</h5>
-                            <p>Order Date: ' . date("F j, Y", strtotime($first->order_date)) . '</p>
-                            <p>Order Status: ' . $first->order_status . '</p>
-                            <p>Shipping Address: ' . $first->shipping_address . '</p>
-                            <p>Payment Method: ' . $first->payment_method . '</p>
-                            <p>Payment Status: ' . $first->payment_status . '</p>
+                        <h5>Order Number: ' . $first->order_number . '</h5>
+                        <p>Order Date: ' . date("F j, Y", strtotime($first->order_date)) . '</p>
+                        <p>Order Status: ' . $first->order_status . '</p>
+                        <p>Shipping Address: ' . $first->shipping_address . '</p>
+                        <p>Payment Method: ' . $first->payment_method . '</p>';
+
+                        if ($first->payment_method === "Gcash") {
+                            echo '<p>Gcash Number: ' . $first->gcash_number . '</p>';
+                        }
+
+                        echo '<p>Payment Status: ' . $first->payment_status . '</p>
                             <h5 class="mt-3">Order Items:</h5>
-                            <div class="scrollable">
-                        ';
+                            <div class="scrollable">';
 
                         foreach ($orders as $item) {
                             echo '
@@ -67,20 +71,18 @@ require "./Classes/Order.php";
                         if ($first->order_status === "To Ship" || $first->order_status === "Delivered") {
                             echo '
                             <div class="d-flex justify-content-center">
-                                <button class="btn btn-success" id="received-btn" data-id="'. $first->order_id .'" data-id="' . $first->order_id . '" '.($first -> order_status === "Delivered" ? "disabled" : "").'>
-                                    '.($first -> order_status === "Delivered" ? "Received" : "I received this order").'
+                                <button class="btn btn-success" id="received-btn" data-id="' . $first->order_id . '" ' . ($first->order_status === "Delivered" ? "disabled" : "") . '>
+                                    ' . ($first->order_status === "Delivered" ? "Received" : "I received this order") . '
                                 </button>
                             </div>';
-                        }
-                        else{
+                        } else {
                             echo '
                             <div class="d-flex justify-content-center">
                                 <button class="btn btn-danger" ' . (in_array($first->order_status, ["Cancelled", "To Ship", "Delivered"]) ? "disabled" : ($first->payment_status === "Paid" ? "disabled" : "")) . ' id="cancel-btn" data-id="' . $first->order_id . '">
-                                    '.($first -> order_status === "Cancelled" ? "Cancelled" : "Cancel Order").'
+                                    ' . ($first->order_status === "Cancelled" ? "Cancelled" : "Cancel Order") . '
                                 </button>
                             </div>';
                         }
-                        
                     }
                 }
                 ?>
