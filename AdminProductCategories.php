@@ -59,7 +59,7 @@ include "./includes/EditCategoryModal.php";
                                 render: function(data, type, row) {
                                     return `
                                 <div class="d-flex justify-content-center align-content-center gap-3">
-                                    <button class="btn btn-outline-info edit" data-id="${data.category_id}"
+                                    <button class="btn btn-outline-primary edit" data-id="${data.category_id}"
                                         data-category_name="${data.category_name}"
                                         data-category_description="${data.category_description}">Edit</button>
                                     <button class="btn btn-outline-danger delete" data-id="${data.category_id}">Delete</button>

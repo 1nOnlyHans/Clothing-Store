@@ -16,6 +16,20 @@ include "./includes/admin_sidebar.php";
 include "./includes/AddUserModal.php";
 ?>
 
+<style>
+    .card-body p,
+    .card-body div {
+        margin-bottom: 0.25rem;
+    }
+
+    .order-items-scrollable {
+        max-height: 400px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+</style>
+
+
 <script>
     $(document).ready(function() {
         getOrderDetails();
@@ -107,40 +121,45 @@ include "./includes/AddUserModal.php";
                                 `;
 
                         const shippingAddress = `
-                        <div class="card mb-4">
+                            <div class="card mb-4">
                             <div class="card-body">
-                            <h5 class="mb-3"><strong>Order Information</strong></h5>
-                            <p class="mb-1"><strong>Order Number:</strong> ${response[0].order_number}</p>
-                            <hr>
-                            <h5 class="mb-3"><strong>Purchaser</strong></h5>
-                            <p class="mb-1"><strong>Name:</strong> ${response[0].user_firstname} ${response[0].user_lastname}</p>
-                            <p class="mb-1"><strong>Email:</strong> ${response[0].user_email}</p>
-                            <hr>
-                            <h5 class="mb-3"><strong>Shipping Address</strong></h5>
-                            <p class="mb-0">${response[0].shipping_address}</p>
-                            <hr>
-                            <h5 class="mb-3"><strong>Payment Method</strong></h5>
-                            <p class="mb-0">Payment Method: ${response[0].payment_method}</p>
-                            <p class="mb-0">Payment Status: ${response[0].payment_status}</p>
-                            ${response[0].payment_method === "Gcash" ? `<p class="mb-0">Gcash Number: ${response[0].gcash_number}</p>` : ""}
-                            <hr>
-                            <h5 class="mb-3"><strong>Order Status</strong></h5>
-                            <span class="badge ${
-                                response[0].order_status === "Delivered" ? "bg-success" :
-                                response[0].order_status === "Processing" ? "bg-warning text-dark" :
-                                response[0].order_status === "To Ship" ? "bg-primary" :
-                                response[0].order_status === "Cancelled" ? "bg-secondary" :
-                                "bg-secondary"
-                            }">
-                                ${response[0].order_status}
-                            </span>
+                                <h5 class="mb-3"><strong>Order Info</strong></h5>
+                                <div class="row mb-2">
+                                <div class="col-sm-6 mb-1"><strong>Order #:</strong> ${response[0].order_number}</div>
+                                <div class="col-sm-6 mb-1"><strong>Status:</strong> 
+                                    <span class="badge ${
+                                    response[0].order_status === "Delivered" ? "bg-success" :
+                                    response[0].order_status === "Processing" ? "bg-warning text-dark" :
+                                    response[0].order_status === "To Ship" ? "bg-primary" :
+                                    response[0].order_status === "Cancelled" ? "bg-secondary" : "bg-secondary"
+                                    }">
+                                    ${response[0].order_status}
+                                    </span>
+                                </div>
+                                </div>
+                                <div class="row mb-2">
+                                <div class="col-sm-6 mb-1"><strong>Name:</strong> ${response[0].user_firstname} ${response[0].user_lastname}</div>
+                                <div class="col-sm-6 mb-1"><strong>Email:</strong> ${response[0].user_email}</div>
+                                </div>
+                                <div class="mb-2"><strong>Shipping:</strong> ${response[0].shipping_address}</div>
+                                <div class="row mb-2">
+                                <div class="col-sm-6 mb-1"><strong>Payment:</strong> ${response[0].payment_method}</div>
+                                <div class="col-sm-6 mb-1"><strong>Status:</strong> ${response[0].payment_status}</div>
+                                </div>
+                                ${
+                                response[0].payment_method === "Gcash" 
+                                ? `<div class="mb-1"><strong>Gcash #:</strong> ${response[0].gcash_number}</div>` 
+                                : ""
+                                }
                             </div>
-                        </div>
-                        `;
+                            </div>
+                            `;
 
                         const orderBlock = `
                                 ${shippingAddress}
-                                ${orderDetails}
+                                <div class="order-items-scrollable">
+                                    ${orderDetails}
+                                </div>
                                 ${subTotalLabel}
                                 `;
 

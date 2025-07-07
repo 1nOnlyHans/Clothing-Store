@@ -125,11 +125,11 @@ class AuthUser extends Dbh
                         $_SESSION["current_user"] = $row;
                         echo json_encode(["status" => "success", "message" => "Login Successfully", "role" => $_SESSION["current_user"]->role]);
                     } else {
-                        echo json_encode(["status" => "error", "message" => "Invalid credentials"]);
+                        echo json_encode(["status" => "error", "message" => "Invalid email or password"]);
                     }
                 }
             } else {
-                echo json_encode(["status" => "error", "message" => "Invalid Account"]);
+                echo json_encode(["status" => "error", "message" => "Invalid email or password"]);
             }
         } catch (PDOException $e) {
             echo json_encode(["status" => "404", "message" => "Database error: " . $e->getMessage()]);
