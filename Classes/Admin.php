@@ -115,13 +115,13 @@ class Admin extends Dbh
         return $this->UserManagement->getUserByRole($role);
     }
 
-    public function addUser($firstname, $lastname, $email, $role)
+    public function addUser($firstname, $lastname, $email, $role,$status)
     {
-        return $this->UserManagement->addUser($firstname, $lastname, $email, $role);
+        return $this->UserManagement->addUser($firstname, $lastname, $email, $role,$status);
     }
-    public function updateUser($id, $firstname, $lastname, $email, $role, $image)
+    public function updateUser($id, $firstname, $lastname, $email, $role, $status)
     {
-        return $this->UserManagement->updateUser($id, $firstname, $lastname, $email, $role, $image);
+        return $this->UserManagement->updateUser($id, $firstname, $lastname, $email, $role, $status);
     }
 
     public function deleteUser($id)

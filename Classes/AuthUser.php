@@ -1,7 +1,8 @@
 <?php
 require "Dbh.php";
 
-class AuthUser extends Dbh{
+class AuthUser extends Dbh
+{
     private $db;
     private $table = "users";
 
@@ -106,7 +107,7 @@ class AuthUser extends Dbh{
         $email = htmlspecialchars(trim($email));
         $password = trim($password);
 
-        if (empty($email) || empty($password) ) {
+        if (empty($email) || empty($password)) {
             echo json_encode(["status" => "error", "message" => "Fill all the required fields"]);
             return;
         }
@@ -117,17 +118,66 @@ class AuthUser extends Dbh{
             $query->execute();
             if ($query->rowCount() > 0) {
                 $row = $query->fetch(PDO::FETCH_OBJ);
-                if (password_verify($password, $row->password)) {
-                    $_SESSION["current_user"] = $row;
-                    echo json_encode(["status" => "success", "message" => "Login Successfully", "role" => $_SESSION["current_user"]->role]);
+                if ($row->status === "Inactive") {
+                    echo json_encode(["status" => "error", "message" => "Failed to login account"]);
                 } else {
-                    echo json_encode(["status" => "error", "message" => "Invalid credentials"]);
+                    if (password_verify($password, $row->password)) {
+                        $_SESSION["current_user"] = $row;
+                        echo json_encode(["status" => "success", "message" => "Login Successfully", "role" => $_SESSION["current_user"]->role]);
+                    } else {
+                        echo json_encode(["status" => "error", "message" => "Invalid credentials"]);
+                    }
                 }
             } else {
                 echo json_encode(["status" => "error", "message" => "Invalid Account"]);
             }
         } catch (PDOException $e) {
             echo json_encode(["status" => "404", "message" => "Database error: " . $e->getMessage()]);
+        }
+    }
+
+    public function updateUser($id, $firstname, $lastname, $email, $role, $status)
+    {
+        try {
+            $findUser = $this->db->prepare("SELECT * FROM " . $this->table . " WHERE id = :id");
+            $findUser->bindParam(":id", $id);
+            $findUser->execute();
+            if($findUser -> rowCount() <= 0){
+                return [
+                    "status" => "error",
+                    "message" => "Invalid Account"
+                ];
+            }
+
+            $query = $this->db->prepare(
+                "UPDATE {$this->table} 
+            SET firstname = :firstname, lastname = :lastname, email = :email, role = :role, status = :status
+            WHERE id = :id"
+            );
+            $query->bindParam(":firstname", $firstname);
+            $query->bindParam(":lastname", $lastname);
+            $query->bindParam(":email", $email);
+            $query->bindParam(":role", $role);
+            $query->bindParam(":status", $status);
+            $query->bindParam(":id", $id);
+            $query->execute();
+
+            if ($query->rowCount() > 0) {
+                return [
+                    "status" => "success",
+                    "message" => "User updated successfully"
+                ];
+            } else {
+                return [
+                    "status" => "warning",
+                    "message" => "No changes were made"
+                ];
+            }
+        } catch (PDOException $e) {
+            return [
+                "status" => "error",
+                "message" => "Database Error: " . $e->getMessage()
+            ];
         }
     }
 }

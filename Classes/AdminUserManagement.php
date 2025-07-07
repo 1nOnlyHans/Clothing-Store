@@ -15,7 +15,7 @@ class UserManagement
 
     public function getUserById($id)
     {
-        $user = [];
+        $users = [];
         $query = $this->db->prepare("SELECT * FROM " . $this->table . " WHERE id = :id");
         $query->bindParam(":id", $id);
         $query->execute();
@@ -31,8 +31,8 @@ class UserManagement
                     "status" => $row->status
                 ];
             }
-            return $user;
         }
+        return $users;
     }
 
     public function getUserByRole($role)
@@ -44,6 +44,7 @@ class UserManagement
         if ($query->rowCount() > 0) {
             while ($row = $query->fetch(PDO::FETCH_OBJ)) {
                 $users[] = [
+                    "id" => $row->id,
                     "firstname" => $row->firstname,
                     "lastname" => $row->lastname,
                     "email" => $row->email,
@@ -53,19 +54,20 @@ class UserManagement
                     "status" => $row->status
                 ];
             }
-            return $users;
         }
+        return $users;
     }
 
-    public function addUser($firstname, $lastname, $email, $role)
+    public function addUser($firstname, $lastname, $email, $role, $status)
     {
         $firstname = htmlspecialchars(trim($firstname));
         $lastname = htmlspecialchars(trim($lastname));
         $email = filter_var(trim($email), FILTER_SANITIZE_EMAIL);
         $password = "default";
         $role = htmlspecialchars(trim($role));
+        $status = htmlspecialchars(trim($status));
 
-        if (empty($firstname) || empty($lastname) || empty($email) || empty($role)) {
+        if (empty($firstname) || empty($lastname) || empty($email) || empty($role) || empty($status)) {
             return ["status" => "error", "message" => "Fill all the required fields"];
         }
 
@@ -87,12 +89,18 @@ class UserManagement
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
         try {
-            $query = $this->db->prepare("INSERT INTO " . $this->table . " (firstname,lastname,email,password,role) VALUES (:firstname,:lastname,:email,:password,:role)");
+            $query = $this->db->prepare(
+                "INSERT INTO {$this->table} (firstname, lastname, email, password, role, status)
+            VALUES (:firstname, :lastname, :email, :password, :role, :status)"
+            );
+
             $query->bindParam(":firstname", $firstname);
             $query->bindParam(":lastname", $lastname);
             $query->bindParam(":email", $email);
             $query->bindParam(":password", $hashedPassword);
             $query->bindParam(":role", $role);
+            $query->bindParam(":status", $status);
+
             $query->execute();
 
             if ($query->rowCount() > 0) {
@@ -105,47 +113,48 @@ class UserManagement
         }
     }
 
-    public function updateUser($id, $firstname, $lastname, $email, $role, $image)
+
+    public function updateUser($id, $firstname, $lastname, $email, $role, $status)
     {
         try {
             $findUser = $this->getUserById($id);
-            if (!$findUser) {
+            $role = "";
+
+            foreach($findUser as $data){
+                $role = $data["role"];
+            }
+
+            if (count($findUser) === 0) {
                 return [
                     "status" => "error",
                     "message" => "Invalid User"
                 ];
             }
 
-            $imageDatabaseName = $findUser["profile_img"];
-
-            if (isset($image) && !empty($image["tmp_name"])) {
-                $imageDatabaseName = time() . '_' . basename($image["name"]);
-                $UpdateImage = $this->imageUpload->UpdateImage($imageDatabaseName, $image, $imageDatabaseName, "../public/uploads/user_images/");
-                if ($UpdateImage["status"] === "error") {
-                    return $UpdateImage;
-                }
-            }
-
-            if ($findUser["role"] === "Admin" && $_SESSION["current_user"]->role === "Admin") {
+            if ($role === "Admin" && $_SESSION["current_user"]->role === "Admin") {
                 return [
                     "status" => "error",
                     "message" => "Permission denied: Cannot update another admin."
                 ];
             }
 
-            $query = $this->db->prepare("UPDATE " . $this->table . " SET firstname = :firstname, lastname = :lastname, email = :email, role =: role, profile_img = :profile_img WHERE id = :id");
+            $query = $this->db->prepare(
+                "UPDATE {$this->table} 
+            SET firstname = :firstname, lastname = :lastname, email = :email, role = :role, status = :status
+            WHERE id = :id"
+            );
             $query->bindParam(":firstname", $firstname);
             $query->bindParam(":lastname", $lastname);
             $query->bindParam(":email", $email);
             $query->bindParam(":role", $role);
-            $query->bindParam(":profile_img", $imageDatabaseName);
+            $query->bindParam(":status", $status);
             $query->bindParam(":id", $id);
             $query->execute();
 
             if ($query->rowCount() > 0) {
                 return [
                     "status" => "success",
-                    "message" => "User Updated"
+                    "message" => "User updated successfully"
                 ];
             } else {
                 return [
@@ -164,9 +173,8 @@ class UserManagement
     public function deleteUser($id)
     {
         try {
-            $deleteQuery = $this->db->prepare("UPDATE " . $this->table . " SET status = :status");
+            $deleteQuery = $this->db->prepare("DELETE FROM {$this->table} WHERE id = :id");
             $deleteQuery->bindParam(":id", $id);
-            $deleteQuery->bindParam(":status", "Inactive");
             $deleteQuery->execute();
 
             if ($deleteQuery->rowCount() > 0) {
@@ -177,7 +185,7 @@ class UserManagement
             } else {
                 return [
                     "status" => "error",
-                    "message" => "Failed to delete User"
+                    "message" => "Failed to delete user or user not found"
                 ];
             }
         } catch (PDOException $e) {

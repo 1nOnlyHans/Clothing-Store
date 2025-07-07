@@ -91,7 +91,7 @@ include "./includes/AddProductModal.php";
                                 data: null,
                                 class: "text-center",
                                 render: function(data,type,row){
-                                    return `<p class="mb-1"><span class="badge ${data.order_status === "Processing" ? "text-bg-warning" : data.order_status === "To Ship" ? "text-bg-primary" : "text-bg-success"}">${data.order_status}</span></p>`;
+                                    return `<p class="mb-1"><span class="badge ${data.order_status === "Processing" ? "text-bg-warning" : data.order_status === "To Ship" ? "text-bg-primary" : data.order_status === "Delivered" ? "text-bg-success" : "text-bg-secondary"}">${data.order_status}</span></p>`;
                                 }
                             },
                             {

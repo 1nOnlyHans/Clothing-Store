@@ -7,7 +7,7 @@ include "./includes/dashboard_session.php";
 
 <head>
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title></title>
+  <title><?php echo $_GET["page"];?></title>
   <meta
     content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
     name="viewport" />
@@ -42,31 +42,31 @@ include "./includes/dashboard_session.php";
         <div class="sidebar-content">
           <ul class="nav nav-secondary">
             <li class="nav-item">
-              <a href="AdminDashboard.php">
+              <a href="AdminDashboard.php?page=AdminDashboard">
                 <i class="fa-solid fa-house"></i>
                 <p>Dashboard</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="AdminUserManagement.php">
+              <a href="AdminUserManagement.php?page=UserManagement">
                 <i class="fa-solid fa-folder-open"></i>
                 <p>User Management</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="AdminProductCategories.php">
+              <a href="AdminProductCategories.php?page=ProductCategories">
                 <i class="fa-solid fa-bell"></i>
                 <p>Product Categories</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="AdminProductsManagement.php">
+              <a href="AdminProductsManagement.php?page=ProductManagement">
                 <i class="fa-solid fa-bell"></i>
                 <p>Products</p>
               </a>
             </li>
             <li class="nav-item">
-              <a href="AdminOrderManagement.php">
+              <a href="AdminOrderManagement.php?page=OrderManagement">
                 <i class="fa-solid fa-chalkboard"></i>
                 <p>Orders</p>
               </a>
@@ -130,12 +130,6 @@ include "./includes/dashboard_session.php";
                   <div class="dropdown-user-scroll scrollbar-outer">
                     <li>
                       <div class="user-box">
-                        <div class="avatar-lg">
-                          <img
-                            src="public/uploads/profile-img/<?php echo $profile_img; ?>"
-                            alt="image profile"
-                            class="avatar-img rounded" />
-                        </div>
                         <div class="u-text text-white">
                           <h4>
                             <?php
@@ -148,7 +142,7 @@ include "./includes/dashboard_session.php";
                             ?>
                           </p>
                           <a
-                            href="view_profile.php"
+                            href="AdminViewProfile.php?page=Profile"
                             class="btn btn-xs btn-sm bg-secondary">View Profile</a>
                         </div>
                       </div>

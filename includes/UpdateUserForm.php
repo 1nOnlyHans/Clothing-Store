@@ -1,15 +1,13 @@
-<?php
-require "./Classes/Admin.php";
-?>
-<div class="modal fade" id="AddUserModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="UpdateUserModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="exampleModalLabel">Add User</h1>
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Update User</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form method="post" id="add-user-form">
+                <form method="post" id="update-user-form">
+                    <input type="text" name="userID" id="userID">
                     <div class="mb-3">
                         <input type="text" name="firstname" id="firstname" class="form-control" placeholder="Enter your firstname">
                     </div>
@@ -26,14 +24,16 @@ require "./Classes/Admin.php";
                             <option value="User">User</option>
                         </select>
                     </div>
+
                     <div class="mb-3">
                         <select name="status" id="status" class="form-select">
                             <option value="Active">Active</option>
                             <option value="Inactive">Inactive</option>
                         </select>
                     </div>
+
                     <div class="mb-3 d-flex justify-content-center">
-                        <button type="submit" class="btn btn-secondary">Submit</button>
+                        <button type="submit" class="btn btn-secondary">Update</button>
                     </div>
                 </form>
             </div>

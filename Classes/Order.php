@@ -97,7 +97,6 @@ class Order
                 $insertOrderItem->bindParam(":total_price", $item->total_price);
 
                 $insertOrderItem->execute();
-
             }
 
             $clearCart = $this->db->prepare("DELETE FROM cart WHERE user_id = :user_id");
@@ -148,5 +147,107 @@ class Order
         }
     }
 
+    public function getOrderDetails($orderID, $userID)
+    {
+        $fetchorderItems = $this->db->prepare("SELECT orders.id AS order_id,orders.user_id as user_id,order_status,orders.order_number, orders.shipping_address, orders.total_amount, orders.payment_status,orders.payment_method, orders.created_at AS order_date, order_items.id AS order_item_id, order_items.quantity AS item_quantity, order_items.unit_price AS unit_price, order_items.total_price as total_unit_price, product_variants.id AS variant_id,products.name as product_name, product_variants.size AS variant_size, product_variants.color AS variant_color, product_variants.stock AS variant_stock, product_variants.image, product_variants.status as product_status FROM orders INNER JOIN order_items ON orders.id = order_items.order_id INNER JOIN product_variants ON order_items.variant_id = product_variants.id INNER JOIN products ON order_items.product_id = products.id WHERE
+        orders.id = :order_id and orders.user_id = :user_id");
 
+        $fetchorderItems->bindParam(":order_id", $orderID);
+        $fetchorderItems->bindParam(":user_id", $userID);
+        $fetchorderItems->execute();
+        if ($fetchorderItems->rowCount() > 0) {
+            return $fetchorderItems->fetchAll(PDO::FETCH_OBJ);
+        } else {
+            return [
+                "status" => "error",
+                "message" => "Invalid OrderID"
+            ];
+        }
+    }
+
+    public function cancelOrder($orderID, $userID)
+    {
+        $checkOrder = $this->db->prepare("SELECT payment_method,order_status FROM orders WHERE id = :id AND user_id = :user_id");
+        $checkOrder->bindParam(":id", $orderID);
+        $checkOrder->bindParam(":user_id", $userID);
+        $checkOrder->execute();
+        if ($checkOrder->rowCount() > 0) {
+            $row = $checkOrder->fetch(PDO::FETCH_OBJ);
+            if ($row->order_status === "To Ship" || $row->order_status === "Delivered" || $row->payment_method === "Gcash") {
+                return [
+                    "status" => "error",
+                    "message" => "Can't cancel order"
+                ];
+            } else {
+                $newStatus = "Cancelled";
+                $updateStatus = $this->db->prepare("UPDATE orders SET order_status = :order_status WHERE id = :id AND user_id = :user_id");
+                $updateStatus->bindParam(":order_status", $newStatus);
+                $updateStatus->bindParam(":id", $orderID);
+                $updateStatus->bindParam(":user_id", $userID);
+                $updateStatus->execute();
+                if ($updateStatus->rowCount() > 0) {
+                    return [
+                        "status" => "success",
+                        "message" => "Cancelled order"
+                    ];
+                } else {
+                    return [
+                        "status" => "error",
+                        "message" => "Failed to cancel order"
+                    ];
+                }
+            }
+        } else {
+            return [
+                "status" => "error",
+                "message" => "Invalid Order"
+            ];
+        }
+    }
+
+    public function getDeliverMessages($userID)
+    {
+        $query = $this->db->prepare("SELECT orders.order_number, deliver_message.* FROM deliver_message INNER JOIN orders ON orders.id = deliver_message.order_id WHERE deliver_message.user_id = :user_id ORDER BY created_at DESC");
+        $query->bindParam(":user_id", $userID);
+        $query->execute();
+        $messages = $query->fetchAll(PDO::FETCH_OBJ);
+        return $messages;
+    }
+
+    public function receiveOrder($orderID, $userID)
+    {
+        $verifyOrder = $this->db->prepare("SELECT * FROM orders WHERE id = :id");
+        $verifyOrder->bindParam(":id", $orderID);
+        $verifyOrder->execute();
+        $orderData = $verifyOrder->fetch(PDO::FETCH_OBJ);
+        if ($verifyOrder->rowCount() === 0) {
+            return [
+                "status" => "error",
+                "message" => "Invalid Order"
+            ];
+        }
+        if ($orderData->order_status === "To Ship") {
+            $newStatus = "Delivered";
+            $updateStatus = $this->db->prepare("UPDATE orders SET order_status = :order_status WHERE id = :id AND user_id = :user_id");
+            $updateStatus->bindParam(":order_status", $newStatus);
+            $updateStatus->bindParam(":id", $orderID);
+            $updateStatus->bindParam(":user_id", $userID);
+            $updateStatus->execute();
+            if ($updateStatus->rowCount() > 0) {
+                return [
+                    "status" => "success",
+                    "message" => "Order Received"
+                ];
+            } else {
+                return [
+                    "status" => "error",
+                    "message" => "Nothing were changed"
+                ];
+            }
+        }
+        return [
+            "status" => "error",
+            "message" => "Failed to update order status"
+        ];
+    }
 }

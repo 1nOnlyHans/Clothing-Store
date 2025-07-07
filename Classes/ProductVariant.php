@@ -25,6 +25,14 @@ class ProductVariant extends Products
             ];
         }
 
+        if ($price <= 0 || $stock <= 0 || $productionCost <= 0) {
+            return [
+                "status" => "error",
+                "message" => "Price, stock, and production cost must be greater than zero"
+            ];
+        }
+
+
         $validateVariant = $this->db->prepare(
             "SELECT * FROM " . $this->table . " 
             WHERE product_id = :product_id AND size = :size AND color = :color"
@@ -110,6 +118,14 @@ class ProductVariant extends Products
             ];
         }
 
+        if ($price <= 0 || $stock <= 0 || $productionCost <= 0) {
+            return [
+                "status" => "error",
+                "message" => "Price, stock, and production cost must be greater than zero"
+            ];
+        }
+
+
         $findVariant = $this->getOneVariant($variantID);
         if (count($findVariant) === 0) {
             return [
@@ -118,7 +134,7 @@ class ProductVariant extends Products
             ];
         }
 
-        
+
         $imageDatabaseName = null;
 
         if (isset($image) && !empty($image["tmp_name"])) {
@@ -143,7 +159,7 @@ class ProductVariant extends Products
             }
         }
 
-        if((int) $stock <= 0){
+        if ((int) $stock <= 0) {
             $status = "Out of Stock";
         }
 
@@ -194,7 +210,7 @@ class ProductVariant extends Products
 
     public function removeVariant($variantID)
     {
-        
+
         $variantID = (int) $variantID;
         try {
             $deleteQuery = $this->db->prepare("DELETE FROM " . $this->table . " WHERE id = :id");
@@ -283,4 +299,3 @@ class ProductVariant extends Products
         }
     }
 }
-?>

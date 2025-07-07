@@ -1,6 +1,7 @@
 <?php
 require "../Classes/Admin.php";
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $userID = $_POST["userID"];
     $firstname = $_POST["firstname"];
     $lastname = $_POST["lastname"];
     $email = $_POST["email"];
@@ -8,5 +9,5 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $status = $_POST["status"];
     $action = new Admin();
 
-    echo json_encode($action->addUser($firstname,$lastname,$email,$role,$status));
+    echo json_encode($action->updateUser($userID,$firstname,$lastname,$email,$role,$status));
 }

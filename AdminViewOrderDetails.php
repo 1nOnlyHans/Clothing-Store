@@ -79,7 +79,6 @@ include "./includes/AddUserModal.php";
                                 `
                         ).join("");
 
-
                         const subTotal = parseFloat(response[0].total_amount).toFixed(2);
 
                         let isInsufficient;
@@ -93,24 +92,46 @@ include "./includes/AddUserModal.php";
                             item.order_status === "To Ship" ? isShipped = true : isShipped = false;
                         });
 
+                        let isDelivered;
+                        response.forEach((item) => {
+                            item.order_status === "Delivered" ? isDelivered = true : isDelivered = false;
+                        });
                         const subTotalLabel = `
                                 <div class="d-flex justify-content-between align-items-center mt-3">
                                     <h5 class="mb-0"><strong>Subtotal:</strong> ₱${subTotal}</h5>
                                     <button type="button" class="btn btn-primary" id="toShipBtn" 
-                                    ${isInsufficient ? "disabled" : isShipped ? "disabled" : ""}>
-                                    ${isShipped ? "Shipped" : "To Ship"}
+                                    ${isInsufficient ? "disabled" : isShipped ? "disabled" : isDelivered ? "disabled" : ""}>
+                                    ${isShipped ? "Shipped" : isDelivered ? "Delivered" : "To Ship"}
                                     </button>
                                 </div>
                                 `;
 
                         const shippingAddress = `
-                                <div class="card mb-4">
-                                    <div class="card-body">
-                                    <h5><strong>Shipping Address</strong></h5>
-                                    <p class="mb-2">${response[0].shipping_address}</p>
-                                    </div>
-                                </div>
-                                `;
+                        <div class="card mb-4">
+                            <div class="card-body">
+                            <h5 class="mb-3"><strong>Order Information</strong></h5>
+                            <p class="mb-1"><strong>Order Number:</strong> ${response[0].order_number}</p>
+                            <hr>
+                            <h5 class="mb-3"><strong>Purchaser</strong></h5>
+                            <p class="mb-1"><strong>Name:</strong> ${response[0].user_firstname} ${response[0].user_lastname}</p>
+                            <p class="mb-1"><strong>Email:</strong> ${response[0].user_email}</p>
+                            <hr>
+                            <h5 class="mb-3"><strong>Shipping Address</strong></h5>
+                            <p class="mb-0">${response[0].shipping_address}</p>
+                            <hr>
+                            <h5 class="mb-3"><strong>Order Status</strong></h5>
+                            <span class="badge ${
+                                response[0].order_status === "Delivered" ? "bg-success" :
+                                response[0].order_status === "Processing" ? "bg-warning text-dark" :
+                                response[0].order_status === "To Ship" ? "bg-primary" :
+                                response[0].order_status === "Cancelled" ? "bg-secondary" :
+                                "bg-secondary"
+                            }">
+                                ${response[0].order_status}
+                            </span>
+                            </div>
+                        </div>
+                        `;
 
                         const orderBlock = `
                                 ${shippingAddress}
@@ -143,13 +164,12 @@ include "./includes/AddUserModal.php";
                 success: function(response) {
                     console.log(response);
                     getOrderDetails();
-                    if(response.status === "success"){
+                    if (response.status === "success") {
                         Swal.fire({
                             icon: "success",
                             title: response.message
                         });
-                    }
-                    else{
+                    } else {
                         Swal.fire({
                             icon: "error",
                             title: response.message

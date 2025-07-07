@@ -34,6 +34,7 @@ include "./includes/admin_sidebar.php";
 
 <?php
 include "./includes/AddUserModal.php";
+include "./includes/UpdateUserForm.php";
 ?>
 <script>
     $(document).ready(function() {
@@ -82,13 +83,23 @@ include "./includes/AddUserModal.php";
                                 data: null,
                                 render: function(data, type, row) {
                                     return `
-                <div class="d-flex justify-content-center gap-2">
-                    <a href="AdminUserDetails.php?userID=${data.id}" class="btn btn-outline-primary btn-sm">View</a>
-                    <button type="button" class="btn btn-outline-danger btn-sm delete" data-id="${data.id}">Delete</button>
-                </div>`;
+                    <div class="d-flex justify-content-center gap-2">
+                        <button type="button" class="btn btn-outline-primary edit" data-bs-toggle="modal" data-bs-target="#UpdateUserModal" data-id="${data.id}"
+                        data-firstname="${data.firstname}"
+                        data-lastname="${data.lastname}"
+                        data-email="${data.email}"
+                        data-role="${data.role}"
+                        data-status="${data.status}">
+                            Edit
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm delete" data-id="${data.id}">Delete</button>
+                    </div>`;
                                 }
                             }
                         ],
+                        language: {
+                            emptyTable: "No users found"
+                        },
                         destroy: true,
                         responsive: true,
                         lengthMenu: [
@@ -97,7 +108,7 @@ include "./includes/AddUserModal.php";
                         ],
                         pageLength: 5,
                         paging: true,
-                        dom: "Blfrtip", // ✅ makes sure length, filter, info, pagination show
+                        dom: "Blfrtip",
                         buttons: [{
                                 extend: "print",
                                 text: "🖨️ Print",
@@ -169,7 +180,7 @@ include "./includes/AddUserModal.php";
             const id = $(this).attr('data-id');
             Swal.fire({
                 title: "Are you sure?",
-                text: "All the item variants will also be removed!",
+                text: "User account will be deleted!",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
@@ -179,14 +190,14 @@ include "./includes/AddUserModal.php";
                 if (result.isConfirmed) {
                     $.ajax({
                         method: "POST",
-                        url: "./controllers/DeleteProduct.php",
+                        url: "./controllers/RemoveUser.php",
                         data: {
-                            productID: id
+                            userID: id
                         },
                         dataType: "json",
                         success: function(response) {
                             if (response.status === "success") {
-                                fetchProducts();
+                                fetchUsers();
                                 Swal.fire({
                                     icon: "success",
                                     title: response.message
@@ -202,6 +213,71 @@ include "./includes/AddUserModal.php";
                             console.log(xhr.responseText);
                         }
                     });
+                }
+            });
+        });
+
+        $(document).on('click', '.edit', function() {
+            const id = $(this).data('id');
+            const firstname = $(this).data('firstname');
+            const lastname = $(this).data('lastname');
+            const email = $(this).data('email');
+            const role = $(this).data('role');
+            const status = $(this).data('status');
+
+            $('#UpdateUserModal input[name="userID"]').val(id);
+            $('#UpdateUserModal input[name="firstname"]').val(firstname);
+            $('#UpdateUserModal input[name="lastname"]').val(lastname);
+            $('#UpdateUserModal input[name="email"]').val(email);
+            $('#UpdateUserModal select[name="role"]').val(role);
+            $('#UpdateUserModal select[name="status"]').val(status);
+            $('#UpdateUserModal').modal('show');
+        });
+
+        $(document).on('click', '.edit', function() {
+            const id = $(this).data('id');
+            const firstname = $(this).data('firstname');
+            const lastname = $(this).data('lastname');
+            const email = $(this).data('email');
+            const role = $(this).data('role');
+            const status = $(this).data('status');
+
+            $('#UpdateUserModal input[name="userID"]').val(id);
+            $('#UpdateUserModal input[name="firstname"]').val(firstname);
+            $('#UpdateUserModal input[name="lastname"]').val(lastname);
+            $('#UpdateUserModal input[name="email"]').val(email);
+            $('#UpdateUserModal select[name="role"]').val(role);
+            $('#UpdateUserModal select[name="status"]').val(status);
+            $('#UpdateUserModal').modal('show');
+        });
+
+        $('#update-user-form').on('submit', function(event) {
+            event.preventDefault();
+            const formData = $(this).serialize();
+            $.ajax({
+                method: "POST",
+                url: "./controllers/UpdateUser.php",
+                data: formData,
+                dataType: "json",
+                success: function(response) {
+                    console.log(response);
+                    if (response.status === "success") {
+                        fetchUsers();
+                        let modal = bootstrap.Modal.getInstance(document.getElementById('UpdateUserModal'));
+                        modal.hide();
+                        Swal.fire({
+                            icon: "success",
+                            title: response.message
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: response.message
+                        });
+                    }
+                },
+                error: function(error) {
+                    console.log(error.responseText);
                 }
             });
         });
